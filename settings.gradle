@@ -1,0 +1,8 @@
+include ':ui'
+include ':components:snackbar'
+include ':app'
+
+include ':core'
+include ':components:views'
+include ':components:icons'
+include ':components:chartview'

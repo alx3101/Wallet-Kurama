@@ -1,0 +1,346 @@
+// Modificato accountViewItems, la funzione HandleAccount e balanceScreenState bisogna provare questa versione e quella nuova.  28-01-23 
+Senza modifica dei init e unione dei dati con ManagesWalletsModel!
+
+
+class newBalanceViewModel ( private val accountManager: IAccountManager,
+                           private val service: BalanceService,
+                           private val balanceViewItemFactory: BalanceViewItemFactory,
+                           private val balanceViewTypeManager: BalanceViewTypeManager,
+                           private val totalBalance: TotalBalance,
+                           private val localStorage: ILocalStorage,
+                           private val languageManager: ILanguageManager,
+                           private val faqManager: FaqManager
+
+) : ViewModel(), ITotalBalance by totalBalance{
+
+
+    var balanceScreenState by mutableStateOf<BalanceScreenState?>(null)
+    private set
+    // rimuovi questa variabile
+    // var balanceScreenState by mutableStateOf<BalanceScreenState?>(null)
+    // private set
+
+    // questa variabile può essere utilizzata per memorizzare l'ID dell'account attivo
+    private var activeAccountId: String? = null
+
+    private var balanceViewType = balanceViewTypeManager.balanceViewTypeFlow.value
+    private var viewState: ViewState = ViewState.Loading
+    private var balanceViewItems = listOf<BalanceViewItem>()
+    private var isRefreshing = false
+
+
+
+
+    private val colors = listOf(
+        Color(237, 110, 0, 255), // Orange
+        Color(31, 27, 222, 255), // Blue
+        Color(0, 102, 255, 255), // Cyan
+        Color(27, 210, 222, 255), // Turquoise
+        Color(255, 255, 255, 255) // Light blue/gray
+    )
+
+    fun getColorForPercent(percent: Int): Color {
+        return when {
+            percent > 30 -> colors[0] // orange
+            percent > 19 -> colors[1] // blue
+            percent > 10 -> colors[2] // cyan
+            percent > 5 -> colors[3] // turquoise
+            else -> colors[4] // light blue/gray
+        }
+    }
+
+    var uiState by mutableStateOf(
+        BalanceUiState(
+            balanceViewItems = balanceViewItems,
+            viewState = viewState,
+            isRefreshing = isRefreshing,
+            headerNote = HeaderNote.None
+        )
+    )
+        private set
+
+    val sortTypes = listOf(BalanceSortType.Value, BalanceSortType.Name, BalanceSortType.PercentGrowth)
+    var sortType by service::sortType
+
+    private var expandedWallet: Wallet? = null
+
+    init {
+        accountManager.activeAccountStateFlow.collectWith(viewModelScope) {
+            handleAccount(it)
+        }
+        viewModelScope.launch {
+            service.balanceItemsFlow
+                .collect { items ->
+                    totalBalance.setTotalServiceItems(items?.map {
+                        TotalService.BalanceItem(
+                            it.balanceData.total,
+                            it.state !is AdapterState.Synced,
+                            it.coinPrice
+                        )
+                    })
+
+                    items?.let { refreshViewItems(it) }
+                }
+        }
+
+        Log.d("la lista è completata balanceScreen state è printata nel log",balanceScreenState.toString())
+
+        viewModelScope.launch {
+            balanceViewTypeManager.balanceViewTypeFlow.collect {
+                handleUpdatedBalanceViewType(it)
+            }
+        }
+
+        service.start()
+
+        totalBalance.start(viewModelScope)
+    }
+
+
+
+    private fun handleAccount(activeAccountState: ActiveAccountState) {
+        when(activeAccountState) {
+            ActiveAccountState.NotLoaded -> { }
+            is ActiveAccountState.AccountsLoaded -> {
+                val accountViewItems = activeAccountState.accounts.map { account ->
+                    AccountViewItem(account.isWatchAccount, account.name, account.id)
+                }
+                balanceScreenState = if (activeAccountState.accounts.isNotEmpty()) {
+                    BalanceScreenState.HasAccounts(accountViewItems)
+                } else {
+                    BalanceScreenState.NoAccount
+                }
+            }
+
+        }
+    }
+
+
+
+
+
+
+    private suspend fun handleUpdatedBalanceViewType(balanceViewType: BalanceViewType) {
+        this.balanceViewType = balanceViewType
+
+        service.balanceItemsFlow.value?.let {
+            refreshViewItems(it)
+        }
+    }
+    private fun emitState() {
+        val newUiState = BalanceUiState(
+            balanceViewItems = balanceViewItems,
+            viewState = viewState,
+            isRefreshing = isRefreshing,
+            headerNote = headerNote()
+        )
+
+        viewModelScope.launch {
+            uiState = newUiState
+        }
+    }
+
+    private fun headerNote(): HeaderNote {
+        val account = service.account ?: return HeaderNote.None
+        val nonRecommendedDismissed = localStorage.nonRecommendedAccountAlertDismissedAccounts.contains(account.id)
+
+        return account.headerNote(nonRecommendedDismissed)
+    }
+    private suspend fun refreshViewItems(balanceItems: List<BalanceModule.BalanceItem>) {
+        withContext(Dispatchers.IO) {
+            viewState = ViewState.Success
+
+            balanceViewItems = balanceItems.map { balanceItem ->
+                balanceViewItemFactory.viewItem(
+                    balanceItem,
+                    service.baseCurrency,
+                    balanceItem.wallet == expandedWallet,
+                    balanceHidden,
+                    service.isWatchAccount,
+                    balanceViewType
+                )
+            }
+
+            emitState()
+        }
+
+    }
+
+    override fun onCleared() {
+        totalBalance.stop()
+        service.clear()
+    }
+
+    override fun toggleBalanceVisibility() {
+        totalBalance.toggleBalanceVisibility()
+        viewModelScope.launch {
+            service.balanceItemsFlow.value?.let { refreshViewItems(it) }
+        }
+    }
+
+    fun onItem(viewItem: BalanceViewItem) {
+        viewModelScope.launch {
+            expandedWallet = when {
+                viewItem.wallet == expandedWallet -> null
+                else -> viewItem.wallet
+            }
+
+            service.balanceItemsFlow.value?.let { refreshViewItems(it) }
+        }
+    }
+
+    val pieChartData = mutableListOf<Float>()
+
+
+    fun calculatePercentage(viewItem: BalanceViewItem, totalState: TotalUIState): Int {
+
+        var percentage = 0
+        if (totalState is TotalUIState.Visible) {
+            val balanceInString = totalState.secondaryAmountStr
+            val cleanedStringDollar = balanceInString.replace("€","")
+            val cleanedLineString = cleanedStringDollar.replace("~","")
+            val cleanedString = cleanedLineString.replace(",",".")
+            val walletBalance = cleanedString.toDouble()
+
+            val coinPriceString = viewItem.secondaryValue.value
+            val cleanedStringCoinDollar = coinPriceString.replace("€","")
+            val cleanedStringCoinComa = cleanedStringCoinDollar.replace(',', '.').toFloat()
+            val coinBalance = cleanedStringCoinComa.toDouble()
+            percentage = (coinBalance / walletBalance  * 100).toInt()
+        } else if (totalState is TotalUIState.Hidden) {
+            percentage = 0
+        }
+
+        return percentage
+
+
+    }
+
+
+    fun calculateAndAddPercentage(viewItem: BalanceViewItem, totalState: TotalUIState) {
+        if (totalState is TotalUIState.Visible) {
+            val balanceInString = totalState.secondaryAmountStr
+            val cleanedStringDollar = balanceInString.replace("€", "")
+            val cleanedLineString = cleanedStringDollar.replace("~", "")
+            val cleanedString = cleanedLineString.replace(",", ".")
+            val walletBalance = cleanedString.toDouble()
+
+            val coinPriceString = viewItem.secondaryValue.value
+            val cleanedStringCoinDollar = coinPriceString.replace("€", "")
+            val cleanedStringCoinComa = cleanedStringCoinDollar.replace(',', '.').toFloat()
+            val coinBalance = cleanedStringCoinComa.toDouble()
+            val percentage = (coinBalance / walletBalance * 100).toInt()
+            if (percentage != -1) {
+                pieChartData.add(percentage.toFloat())
+            }
+        }
+
+    }
+
+    fun getWalletForReceive(viewItem: BalanceViewItem) = when {
+        viewItem.wallet.account.isBackedUp -> viewItem.wallet
+        else -> throw BackupRequiredError(viewItem.wallet.account, viewItem.coinTitle)
+    }
+
+    fun onRefresh() {
+        if (isRefreshing) {
+            return
+        }
+
+        viewModelScope.launch {
+            isRefreshing = true
+            emitState()
+
+            service.refresh()
+            // A fake 2 seconds 'refresh'
+            delay(2300)
+
+            isRefreshing = false
+            emitState()
+        }
+    }
+
+    fun onCloseHeaderNote(headerNote: HeaderNote) {
+        when (headerNote) {
+            HeaderNote.NonRecommendedAccount -> {
+                service.account?.let { account ->
+                    localStorage.nonRecommendedAccountAlertDismissedAccounts += account.id
+                    emitState()
+                }
+            }
+            else -> Unit
+        }
+    }
+
+    fun getFaqUrl(headerNote: HeaderNote): String {
+        val baseUrl = URL(faqManager.faqListUrl)
+        val faqUrl = headerNote.faqUrl(languageManager.currentLocale.language)
+        return URL(baseUrl, faqUrl).toString()
+    }
+
+    fun disable(viewItem: BalanceViewItem) {
+        service.disable(viewItem.wallet)
+    }
+
+    fun getSyncErrorDetails(viewItem: BalanceViewItem): SyncError = when {
+        service.networkAvailable -> SyncError.Dialog(viewItem.wallet, viewItem.errorMessage)
+        else -> SyncError.NetworkNotAvailable()
+    }
+
+    sealed class SyncError {
+        class NetworkNotAvailable : SyncError()
+        class Dialog(val wallet: Wallet, val errorMessage: String?) : SyncError()
+    }
+
+} //Fine viewModel
+
+
+data class AccountViewItem(val isWatchAccount: Boolean, val name: String = "", val id: String)
+
+
+sealed class BalanceScreenState() {
+    class HasAccounts(val accounts: List<AccountViewItem>) : BalanceScreenState()
+    object NoAccount : BalanceScreenState()
+}
+
+class BackupRequiredError(val account: Account, val coinTitle: String) : Error("Backup Required")
+
+data class BalanceUiState(
+    val balanceViewItems: List<BalanceViewItem>,
+    val viewState: ViewState,
+    val isRefreshing: Boolean,
+    val headerNote: HeaderNote
+)
+
+
+sealed class TotalUIState {
+    data class Visible(
+        val primaryAmountStr: String,
+        val secondaryAmountStr: String,
+        val dimmed: Boolean
+    ) : TotalUIState()
+
+    object Hidden : TotalUIState()
+
+}
+
+enum class HeaderNote {
+    None,
+    NonStandardAccount,
+    NonRecommendedAccount
+}
+
+
+
+fun HeaderNote.faqUrl(language: String) = when (this) {
+    HeaderNote.NonStandardAccount -> "faq/$language/management/migration_required.md"
+    HeaderNote.NonRecommendedAccount -> "faq/$language/management/migration_recommended.md"
+    HeaderNote.None -> null
+}
+
+fun Account.headerNote(nonRecommendedDismissed: Boolean): HeaderNote = when {
+    nonStandard -> HeaderNote.NonStandardAccount
+    nonRecommended -> if (nonRecommendedDismissed) HeaderNote.None else HeaderNote.NonRecommendedAccount
+    else -> HeaderNote.None
+}
+
