@@ -12,7 +12,7 @@ enum class LaunchPage(@StringRes val titleRes: Int, @DrawableRes val iconRes: In
     Balance(R.string.SettingsLaunchScreen_Balance, R.drawable.ic_wallet_20),
     Market(R.string.SettingsLaunchScreen_MarketOverview, R.drawable.ic_market_20),
     Watchlist(R.string.SettingsLaunchScreen_Watchlist, R.drawable.ic_star_20),
-    Home(R.string.Home,R.drawable.kurama_finance_circle),
+    Home(R.string.Home,R.drawable.kurama_icon),
     Reports(R.string.Reports,R.drawable.reports_icon)
     ;
 

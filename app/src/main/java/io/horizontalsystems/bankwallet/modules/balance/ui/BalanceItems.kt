@@ -1,7 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.balance.ui
 
 import android.os.Bundle
-import android.service.quickaccesswallet.WalletCard
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
@@ -30,8 +29,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -48,7 +45,6 @@ import io.horizontalsystems.bankwallet.modules.rateapp.RateAppViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
 import io.horizontalsystems.bankwallet.ui.compose.components.*
-import io.horizontalsystems.core.helpers.HudHelper
 
 
 @Composable
@@ -160,14 +156,7 @@ fun WalletBalanceItem(
 ) {
 
     val percent = remember { mutableStateOf(0) }
-    val colors = listOf(
-        Color(237, 110, 0, 255), // Arancione
-        Color(31, 27, 222, 255), // Blu
-        Color(0, 102, 255, 255), // Ciano
-        Color(27, 210, 222, 255), // Ciano
-        Color(255, 255, 255, 255), // Azurro/Grigio
 
-    )
 
     val sortType = viewModel.sortTypes
     val accountId = accountViewItem.id
@@ -204,112 +193,106 @@ fun WalletBalanceItem(
         Column(
             modifier = Modifier
                 .align(Alignment.Center),
-        ) {
+        ){
 
-            Row(
-                modifier = Modifier
-                    .height(50.dp)
-                    .padding(all = 1.dp)
+                Row(
+                    modifier = Modifier
+                        .height(50.dp)
+                        .padding(all = 1.dp)
 
 
-            ) {
+                ) {
 
-                Spacer(Modifier.weight(1f))
+                    Spacer(Modifier.weight(1f))
 
-                IconButton(
-                    onClick = {
-                        navController.slideFromBottom(
-                            R.id.manageAccountsFragment,
-                            ManageAccountsModule.prepareParams(ManageAccountsModule.Mode.Switcher)
+                    IconButton(
+                        onClick = {
+                            navController.slideFromBottom(
+                                R.id.manageAccountsFragment,
+                                ManageAccountsModule.prepareParams(ManageAccountsModule.Mode.Switcher)
+                            )
+                        },
+
+                        ) {
+                        Image(
+                            painter = painterResource(id = io.horizontalsystems.bankwallet.R.drawable.more_dots),
+                            contentDescription = null
                         )
-                    },
-
-                    ) {
-                    Image(
-                        painter = painterResource(id = io.horizontalsystems.bankwallet.R.drawable.more_dots),
-                        contentDescription = null
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(20.dp))
-            Box(
-                modifier = Modifier
-                    .height(300.dp)
-                    .offset(y = -40.dp)
-                    .background(Color.Transparent)
-                    .padding(all = 20.dp)
-            )
-            {
-                when (totalState) {
-                    TotalUIState.Hidden -> {
-
-                        secondaryAmount = "*****"
-
-                    }
-                    is TotalUIState.Visible -> {
-                        secondaryAmount = totalState.secondaryAmountStr
-
                     }
                 }
-
-                FullCircleChart(
-                    modifier = Modifier.scale(1.0f),
-                    percentValues = viewModel.pieChartData,
-                    viewModel = viewModel,
-                    title = accountViewItem.name,
-                    balance = secondaryAmount.toString()
-
+                Spacer(modifier = Modifier.height(20.dp))
+                Box(
+                    modifier = Modifier
+                        .height(300.dp)
+                        .offset(y = -40.dp)
+                        .background(Color.Transparent)
+                        .padding(all = 20.dp)
                 )
+                {
+                    when (totalState) {
+                        TotalUIState.Hidden -> {
 
-            }
+                            FullCircleChart(
+                                modifier = Modifier .scale(0.9f),
+                                percentValues = viewModel.pieChartData,
+                                viewModel = viewModel,
+                                title = accountViewItem.name,
+                                balance = "*****"
+                            )
 
+                        }
+                        is TotalUIState.Visible -> {
 
-            var revealedCardId by remember { mutableStateOf<Int?>(null) }
+                            FullCircleChart(
+                                modifier = Modifier .scale(0.9f),
+                                percentValues = viewModel.pieChartData,
+                                viewModel = viewModel,
+                                title = accountViewItem.name,
+                                balance = totalState.secondaryAmountStr
 
-            val listState = rememberSaveable(
-                accountId,
-                sortType,
-                saver = LazyListState.Saver
-            ) {
-                LazyListState()
-            }
+                            )
 
-            HSSwipeRefresh(
-                state = rememberSwipeRefreshState(uiState.isRefreshing),
-                onRefresh = {
-                    viewModel.onRefresh()
+                            secondaryAmount = totalState.secondaryAmountStr
+                            viewModel.numberStringed = secondaryAmount.toString()
+                        }
+                    }
                 }
-            ) {
-                LazyRow(
-                    modifier = Modifier.fillMaxSize(),
-                    state = listState,
 
-                    ) {
-                    val topFourItems =
-                        balanceViewItems.sortedWith(compareByDescending { it.secondaryValue.value })
-                            .take(4)
 
-                    items(topFourItems, key = { item -> item.wallet.hashCode() }) { item ->
+                var revealedCardId by remember { mutableStateOf<Int?>(null) }
 
-                        val index = topFourItems.indexOf(item)
-                        val color = colors[index % colors.size]
+                val listState = rememberSaveable(
+                    accountId,
+                    sortType,
+                    saver = LazyListState.Saver
+                ) {
+                    LazyListState()
+                }
 
-                        WalletBalanceCard(
-                            item,
-                            viewModel,
-                            accountViewItem,
-                            uiState,
-                            totalState,
-                            navController,
-                            color
-                        )
+                HSSwipeRefresh(
+                    state = rememberSwipeRefreshState(uiState.isRefreshing),
+                    onRefresh = {
+                        viewModel.onRefresh()
+                    }
+                ) {
+                    LazyRow(
+                        modifier = Modifier.fillMaxSize(),
+                        state = listState,
+
+                        ) {
+                        items(balanceViewItems, key = { item -> item.wallet.hashCode() }) { item ->
+
+                            WalletBalanceCard(item,viewModel,accountViewItem,uiState,totalState,navController)
+
+
+                        }
                     }
                 }
             }
 
         }
     }
-}
+
 
 
 
@@ -327,14 +310,7 @@ fun BalanceItems(
 ) {
 
     val percent = remember { mutableStateOf(0) }
-    val colors = listOf(
-        Color(237, 110, 0, 255), // Arancione
-        Color(31, 27, 222, 255), // Blu
-        Color(0, 102, 255, 255), // Ciano
-        Color(27, 210, 222, 255), // Ciano
-       // Color(255, 255, 255, 255), // Azurro/Grigio
 
-    )
 
     val sortType = viewModel.sortTypes
     val accountId = accountViewItem.accountId
@@ -351,20 +327,20 @@ fun BalanceItems(
             rateAppViewModel.onBalancePageInactive()
         }
     }
-    val orangeKurama =  Color(237, 110, 0, 255)// Arancione
+
     val itemColorFigma = Color(red = 31, green = 34, blue = 42)
     val context = LocalContext.current
 
-    Spacer(modifier = Modifier.height(11.dp))
+    Spacer(modifier = Modifier.height(10.dp))
 
     Box(
 
         modifier = Modifier
-            .height(if (expandedState == true) 300.dp else 135.dp)
-            .clip(RoundedCornerShape(15.dp))
-            .fillMaxWidth()
+            .height(if (expandedState == true) 450.dp else 200.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .width(350.dp)
             .background(itemColorFigma)
-            .padding(top = 0.dp, start = 6.dp, end = 6.dp)
+            .padding(top = 5.dp, start = 15.dp, end = 15.dp)
             .clickable {
                 navController.navigate(
                     R.id.walletFragment,
@@ -377,7 +353,7 @@ fun BalanceItems(
         Column(
             modifier = Modifier
                 .align(Alignment.Center)
-                .height(300.dp)
+                .height(600.dp)
         ) {
             if (expandedState == false) {
                 Log.e("L'id è: ", accountId)
@@ -407,63 +383,20 @@ fun BalanceItems(
 
                         Spacer(Modifier.weight(1f))
 
-                        IconButton(
-                            onClick = {
-
-
-                            },
-
-
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.more_dots),
-                                contentDescription = null
-                            )
-                        }
-
 
                     }
-                    Column(modifier = Modifier.align(Alignment.CenterHorizontally).offset( y = -30.dp)) {
+                    Column(modifier = Modifier.align(Alignment.CenterHorizontally)) {
 
 
-                        Text(text = accountViewItem.title,
-                            color = orangeKurama,
-                            style = TextStyle(
-                                fontSize = 25.sp,
-                                fontWeight = FontWeight.W400
-                            ),
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                                .padding(bottom = 10.dp)
+                        Text(
+                            text = accountViewItem.title,
+                            style = TextStyle(color = Color.White)
                         )
 
-                        Text(text = "$ 100.257.497,45",
-                            color = Color.White,
-                            style = TextStyle(
-                                fontSize = 25.sp,
-                                fontWeight = FontWeight.W400
-                            ),
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        Text(
+                            text = secondaryAmount.toString(),
+                            style = TextStyle(color = Color.Green)
                         )
-
-                        IconButton(
-                            onClick = {
-                                viewModel.toggleBalanceVisibility()
-                                HudHelper.vibrate(context)
-
-                            },
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .size(27.dp)
-                                .padding(top = 10.dp),
-
-                            ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.hide),
-                                contentDescription = null
-                            )
-                        }
-
-
 
                     }
                 }
@@ -509,33 +442,41 @@ fun BalanceItems(
                 Spacer(modifier = Modifier.height(20.dp))
                 Box(
                     modifier = Modifier
-                        .height(170.dp)
+                        .height(300.dp)
                         .offset(y = -40.dp)
                         .background(Color.Transparent)
-                        .padding(all = 50.dp)
+                        .padding(all = 20.dp)
                 )
                 {
                     when (totalState) {
                         TotalUIState.Hidden -> {
 
-                            secondaryAmount = "*****"
+                            FullCircleChart(
+                                modifier = Modifier.scale(0.7f),
+                                percentValues = viewModel.pieChartData,
+                                viewModel = viewModel,
+                                title = accountViewItem.title,
+                                balance = "****"
+
+                            )
+
 
                         }
                         is TotalUIState.Visible -> {
-                            secondaryAmount = totalState.secondaryAmountStr
 
+                            FullCircleChart(
+                                modifier = Modifier.scale(0.7f),
+                                percentValues = viewModel.pieChartData,
+                                viewModel = viewModel,
+                                title = accountViewItem.title,
+                                balance = totalState.secondaryAmountStr
+
+                            )
+
+                            secondaryAmount = totalState.secondaryAmountStr
+                            viewModel.numberStringed = secondaryAmount.toString()
                         }
                     }
-
-                    FullCircleChart(
-                        modifier = Modifier.scale(0.6f),
-                        percentValues = viewModel.pieChartData,
-                        viewModel = viewModel,
-                        title = accountViewItem.title,
-                        balance = secondaryAmount.toString()
-
-                    )
-
                 }
 
 
@@ -556,31 +497,20 @@ fun BalanceItems(
                     }
                 ) {
                     LazyRow(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxSize(),
                         state = listState,
-                        contentPadding = PaddingValues(bottom = 1.dp)
 
                         ) {
-
-                        val topFourItems = balanceViewItems.sortedWith(compareByDescending { it.secondaryValue.value }).take(4)
-
-                        items(topFourItems, key = { item -> item.wallet.hashCode() }) { item ->
-
-                            val index = topFourItems.indexOf(item)
-                            val color = colors[index % colors.size]
+                        items(balanceViewItems, key = { item -> item.wallet.hashCode() }) { item ->
 
                             BalanceCard(
-                                modifier = Modifier,
                                 item,
                                 viewModel,
                                 accountViewItem,
                                 uiState,
                                 totalState,
-                                navController,
-                                color
+                                navController
                             )
-
-                            Spacer(Modifier.width(17.dp))
 
 
                         }
@@ -591,7 +521,6 @@ fun BalanceItems(
         }
     }
 }
-
 
 
 
