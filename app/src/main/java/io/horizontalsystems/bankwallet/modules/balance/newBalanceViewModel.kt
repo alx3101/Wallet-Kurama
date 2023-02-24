@@ -53,34 +53,9 @@ class newBalanceViewModel ( private val accountManager: IAccountManager,
     val accountsList: List<Pair<String, Account>> = accountManager.accounts.map { account -> Pair(account.id, account) }
     val totalUIStateList = mutableListOf<TotalUIState>()
     val total = totalBalance.totalBalance
+    val pieChartData = mutableListOf<Float>()
 
 
-
-    private val setOfIds = hashSetOf<String>()
-
-    fun addIdToIdsList(id: String) {
-        setOfIds.add(id)
-    }
-
-
-
-    private val colors = listOf(
-        Color(237, 110, 0, 255), // Orange
-        Color(31, 27, 222, 255), // Blue
-        Color(0, 102, 255, 255), // Cyan
-        Color(27, 210, 222, 255), // Turquoise
-        Color(255, 255, 255, 255) // Light blue/gray
-    )
-
-    fun getColorForPercent(percent: Int): Color {
-        return when {
-            percent > 30 -> colors[0] // orange
-            percent > 19 -> colors[1] // blue
-            percent > 10 -> colors[2] // cyan
-            percent > 5 -> colors[3] // turquoise
-            else -> colors[4] // light blue/gray
-        }
-    }
 
     var uiState by mutableStateOf(
         BalanceUiState(
@@ -149,6 +124,7 @@ class newBalanceViewModel ( private val accountManager: IAccountManager,
         }
         service.start()
         totalBalance.start(viewModelScope)
+        Log.e("Le percentuali sono", pieChartData.toString())
 
 
 
@@ -319,7 +295,7 @@ class newBalanceViewModel ( private val accountManager: IAccountManager,
         }
     }
 
-    val pieChartData = mutableListOf<Float>()
+
     var numberStringed = ""
     var listData = mutableListOf<Double>()
 

@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +49,7 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.bankwallet.ui.extensions.RotatingCircleProgressView
 import io.horizontalsystems.core.helpers.HudHelper
+import kotlinx.coroutines.delay
 import java.lang.Math.round
 import java.math.BigDecimal
 
@@ -64,7 +66,6 @@ fun BalanceCard(
 
     ) {
 
-    val percentage = viewModel.calculatePercentage(viewItem, totalState)
 
 
 
@@ -93,7 +94,10 @@ fun BalanceCard(
                      Text(text = "${viewModel.calculatePercentage(viewItem,totalState)}%",
                          style = TextStyle(color = Color.White))
 
-                     viewModel.calculateAndAddPercentage(viewItem, totalState)
+
+                         viewModel.calculateAndAddPercentage(viewItem, totalState)
+
+
 
 
                  }
@@ -126,7 +130,7 @@ fun BalanceCard(
                      Text(text = "****",
                          style = TextStyle(color = Color.White))
 
-                     viewModel.calculateAndAddPercentage(viewItem, totalState)
+
 
 
                  }
@@ -148,7 +152,7 @@ fun WalletBalanceCard(
 
     ) {
 
-    val percentage = viewModel.calculatePercentage(viewItem, totalState)
+
     if (viewItem.secondaryValue.visible) {
 
         Row(modifier = Modifier) {
@@ -208,7 +212,7 @@ fun WalletBalanceCard(
                 Text(text = "****",
                     style = TextStyle(color = Color.White))
 
-                viewModel.calculateAndAddPercentage(viewItem, totalState)
+
 
 
             }

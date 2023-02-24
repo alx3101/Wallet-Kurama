@@ -193,7 +193,7 @@ fun WalletBalanceItem(
     Box(
 
         modifier = Modifier
-            .height(450.dp)
+            .height(300.dp)
             .clip(RoundedCornerShape(10.dp))
             .fillMaxWidth()
             .background(itemColorFigma)
@@ -234,10 +234,10 @@ fun WalletBalanceItem(
             Spacer(modifier = Modifier.height(20.dp))
             Box(
                 modifier = Modifier
-                    .height(300.dp)
+                    .height(170.dp)
                     .offset(y = -40.dp)
                     .background(Color.Transparent)
-                    .padding(all = 20.dp)
+                    .padding(all = 5.dp)
             )
             {
                 when (totalState) {
@@ -253,7 +253,7 @@ fun WalletBalanceItem(
                 }
 
                 FullCircleChart(
-                    modifier = Modifier.scale(1.0f),
+                    modifier = Modifier.scale(0.6f),
                     percentValues = viewModel.pieChartData,
                     viewModel = viewModel,
                     title = accountViewItem.name,
@@ -338,7 +338,7 @@ fun BalanceItems(
 
     val sortType = viewModel.sortTypes
     val accountId = accountViewItem.accountId
-    viewModel.addIdToIdsList(accountId)
+
 
     // Use rememberSaveable to save the state of secondaryAmount for the given accountId
     var secondaryAmount: String? by rememberSaveable(accountId) { mutableStateOf(null) }

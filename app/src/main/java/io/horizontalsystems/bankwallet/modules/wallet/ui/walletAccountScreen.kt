@@ -113,25 +113,7 @@ fun walletAccountScreen(
 
                    WalletActionsRow(navController)
 
-/*
-                    walletButton(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(all = 10.dp),
-                        imageVector = ImageVector.vectorResource(id = R.drawable.receive_icon),
-                        buttonText = "Import",
-                        onClick = {
-                            navController.navigateWithTermsAccepted {
-                                navController.slideFromRight(R.id.restoreMnemonicFragment)
-                            }
-                        },
-                        backgroundColor = Color.Transparent,
-                        fontColor = Color.White
-                    )
-
- */
                 }
-
 
 
                 Column(
@@ -147,7 +129,7 @@ fun walletAccountScreen(
                         totalState,
                         expandedState = true
                     )
-                    val tabs = listOf("Crypto", "NFT", "All Chains")
+
 
                     val selected = Color(red = 82, green = 89, blue = 106)
                     val tab = Color(red = 31, green = 34, blue = 42)

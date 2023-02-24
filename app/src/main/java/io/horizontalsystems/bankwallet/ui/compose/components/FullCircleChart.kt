@@ -56,28 +56,29 @@ fun FullCircleChart(
 
 
     val colors: Array<Color>  = arrayOf(
-        Color(237, 110, 0, 255), // Arancione
-        Color(31, 27, 222, 255), // Blu
-        Color(0, 102, 255, 255), // Ciano
-        Color(27, 210, 222, 255), // Ciano
-
-
+        Color(0xFFED6E00),
+        Color(0xFF1D1BDE),
+        Color(0xFF0066FF),
+        Color(0xFF1BD2DE)
     )
 
     fun getColorForPercent(percent: Int,index: Int): Color {
         return colors.getOrElse( index % colors.size) { colors.last()}
     }
 
-    var startAngle = 270F
+    var startAngle = 50F
+    var prevEndAngle = startAngle
 
 
 
     val proportions = percentValues.mapIndexed { index, item ->
         val color = getColorForPercent(item.toInt(), index)
         val sweepAngle = item / 100 * 360F
-        val proportion = Triple(startAngle, sweepAngle, color)
+        val proportion = Triple(prevEndAngle, prevEndAngle + sweepAngle, color)
+        prevEndAngle += sweepAngle // update end angle for next arc
         proportion
     }
+
 
     val data = percentValues.mapIndexed { index, item ->
         val color = getColorForPercent(item.toInt(),index)
@@ -93,16 +94,26 @@ fun FullCircleChart(
             .animateContentSize()
     ) {
         Canvas(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             val strokeWidth = size.width * 0.07f // 20% of total width of chart
             val diameter = size.width - strokeWidth
 
-            proportions.forEach {  (startAngle, sweepAngle, color) ->
+            drawArc(
+                color = Color(114,131,190,255),
+                startAngle = 0f,
+                sweepAngle = 360f,
+                useCenter = false,
+                topLeft = Offset(x = strokeWidth / 2f, y = strokeWidth / 2f),
+                style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
+                size = Size(diameter, diameter)
+            )
+
+            proportions.forEach {  (startAngle, endAngle, color) ->
                 drawArc(
                     color = color,
-                    startAngle = startAngle,
-                    sweepAngle = sweepAngle,
+                    startAngle = startAngle ,
+                    sweepAngle = endAngle - startAngle,
                     useCenter = false,
                     topLeft = Offset(x = strokeWidth / 2f, y = strokeWidth / 2f),
                     style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
@@ -163,3 +174,16 @@ fun FullCircleChart(
     }
 }
 
+
+/*
+@Preview(showBackground = true)
+@Composable
+fun FullCircleChartPreview() {
+    fFullCircleChart(
+        percentValues = listOf(69f, 10f, 6f, 6f),
+        title = "Title",
+        balance = "$100.00"
+    )
+}
+
+*/
