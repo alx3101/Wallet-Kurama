@@ -29,9 +29,9 @@ object AppearanceModule {
 }
 
 enum class AppIcon(val icon: Int, val titleText: String) : WithTranslatableTitle {
-    Main(R.drawable.launcher_main_preview, "Main"),
-    Dark(R.drawable.launcher_dark_preview, "Dark"),
-    Mono(R.drawable.launcher_mono_preview, "Mono"),
+    Main(R.drawable.kurama_finance, "Main"),
+    Dark(R.drawable.kurama_finance, "Dark"),
+    Mono(R.drawable.kurama_finance, "Mono"),
     Leo(R.drawable.launcher_leo_preview, "Leo"),
     Mustang(R.drawable.launcher_mustang_preview, "Mustang"),
     Yak(R.drawable.launcher_yak_preview, "Yak"),

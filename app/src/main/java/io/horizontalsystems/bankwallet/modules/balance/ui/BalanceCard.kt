@@ -4,13 +4,16 @@ import android.util.Log
 import android.view.View
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
@@ -18,6 +21,8 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
@@ -48,56 +53,88 @@ import java.math.BigDecimal
 
 @Composable
 fun BalanceCard(
-
+    modifier : Modifier,
     viewItem: BalanceViewItem,
     viewModel: newBalanceViewModel,
     accountViewItem:  BalanceModule.BalanceAccountViewItem,
     uiState: BalanceUiState,
     totalState: TotalUIState,
     navController: NavController,
+    color: Color
 
     ) {
 
     val percentage = viewModel.calculatePercentage(viewItem, totalState)
-    if (percentage > 0 ) {
-    Box(modifier = Modifier) {
-
-        when (totalState) {
-            TotalUIState.Hidden -> {
-
-            }
-            is TotalUIState.Visible -> {
-
-                Row(modifier = Modifier) {
-
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .padding(10.dp)
-                            .height(40.dp)
-                    ) {
-
-                        val context = LocalContext.current
-
-                        Text(text = viewItem.coinCode,
-                            style = TextStyle(color = Color.White))
-                        Text(text = "${viewModel.calculatePercentage(viewItem,totalState)}%",
-                            style = TextStyle(color = Color.White))
-
-                        viewModel.calculateAndAddPercentage(viewItem, totalState)
 
 
-                    }
-                }
-            }
-        }
+
+         if (viewItem.secondaryValue.visible) {
+
+             Row(modifier = Modifier) {
+
+                 Box(modifier = Modifier
+                     .size(15.dp)
+                     .align(Alignment.Top)
+                     .background(color,CircleShape)
+                     .clip(CircleShape)
+                 )
+
+                 Column(
+                     modifier = Modifier
+                         .align(Alignment.CenterVertically)
+                         .padding(10.dp)
+                         .height(40.dp)
+                 ) {
+
+                     val context = LocalContext.current
+
+                     Text(text = viewItem.coinCode,
+                         style = TextStyle(color = Color.White, fontWeight = FontWeight.Bold))
+                     Text(text = "${viewModel.calculatePercentage(viewItem,totalState)}%",
+                         style = TextStyle(color = Color.White))
+
+                     viewModel.calculateAndAddPercentage(viewItem, totalState)
+
+
+                 }
+             }
+
+
+         } else {
+
+             Row(modifier = Modifier) {
+
+
+                 Box(modifier = Modifier
+                     .size(15.dp)
+                     .align(Alignment.Top)
+                     .background(color,CircleShape)
+                     .clip(CircleShape)
+                 )
+
+                 Column(
+                     modifier = Modifier
+                         .align(Alignment.CenterVertically)
+                         .padding(10.dp)
+                         .height(40.dp)
+                 ) {
+
+                     val context = LocalContext.current
+
+                     Text(text = viewItem.coinCode.toUpperCase(),
+                         style = TextStyle(color = Color.White, fontWeight = FontWeight.Bold))
+                     Text(text = "****",
+                         style = TextStyle(color = Color.White))
+
+                     viewModel.calculateAndAddPercentage(viewItem, totalState)
+
+
+                 }
+             }
+
+         }
     }
-} else if (percentage <5 ){
 
-    Log.d("test","ci sono altri dati")
-}
-
-}
 @Composable
 fun WalletBalanceCard(
 
@@ -107,48 +144,77 @@ fun WalletBalanceCard(
     uiState: BalanceUiState,
     totalState: TotalUIState,
     navController: NavController,
+    color: Color
 
     ) {
 
     val percentage = viewModel.calculatePercentage(viewItem, totalState)
-    if (percentage > 0 ) {
-        Box(modifier = Modifier) {
+    if (viewItem.secondaryValue.visible) {
 
-            when (totalState) {
-                TotalUIState.Hidden -> {
+        Row(modifier = Modifier) {
 
-                }
-                is TotalUIState.Visible -> {
+            Box(modifier = Modifier
+                .size(15.dp)
+                .align(Alignment.Top)
+                .background(color,CircleShape)
+                .clip(CircleShape)
+            )
 
-                    Row(modifier = Modifier) {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(10.dp)
+                    .height(40.dp)
+            ) {
 
-                        Column(
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                                .padding(10.dp)
-                                .height(40.dp)
-                        ) {
+                val context = LocalContext.current
 
-                            val context = LocalContext.current
+                Text(text = viewItem.coinCode,
+                    style = TextStyle(color = Color.White, fontWeight = FontWeight.Bold))
+                Text(text = "${viewModel.calculatePercentage(viewItem,totalState)}%",
+                    style = TextStyle(color = Color.White))
 
-                            Text(text = viewItem.coinCode,
-                                style = TextStyle(color = Color.White))
-                            Text(text = "${viewModel.calculatePercentage(viewItem,totalState)}%",
-                                style = TextStyle(color = Color.White))
-
-                            viewModel.calculateAndAddPercentage(viewItem, totalState)
+                viewModel.calculateAndAddPercentage(viewItem, totalState)
 
 
-                        }
-                    }
-                }
             }
         }
-    } else if (percentage <5 ){
 
-        Log.d("test","ci sono altri dati")
+
+    } else {
+
+        Row(modifier = Modifier) {
+
+
+            Box(modifier = Modifier
+                .height(15.dp)
+                .width(15.dp)
+                .align(Alignment.Top)
+                .background(color, CircleShape)
+                .clip(CircleShape)
+            )
+
+            Column(
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(10.dp)
+                    .height(40.dp)
+            ) {
+
+                val context = LocalContext.current
+
+                Text(text = viewItem.coinCode.toUpperCase(),
+                    style = TextStyle(color = Color.White, fontWeight = FontWeight.Bold))
+                Text(text = "****",
+                    style = TextStyle(color = Color.White))
+
+                viewModel.calculateAndAddPercentage(viewItem, totalState)
+
+
+            }
+        }
+
     }
-
 }
 
 

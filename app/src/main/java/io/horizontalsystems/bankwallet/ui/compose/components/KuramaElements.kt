@@ -71,7 +71,7 @@ fun KuramaTabRow(
                     maxLines = 2,
                     color = if (isSelected) selectedTextColor else if (enabled) textColor else textColor.copy(alpha = 1.0f),
                     fontWeight = FontWeight.W500,
-                    fontSize = if (title.length > 7) 9.2.sp else 14.sp
+                    fontSize = if (title.length > 7) 11.sp else 14.sp
                 )
             }
         }
@@ -91,7 +91,7 @@ fun walletActionButton(
     Box(
         modifier = modifier
             .background(color = Color(31, 34, 42, 1), shape = CircleShape)
-            .padding(12.5.dp)
+            .padding(0.5.dp)
             .size(100.dp)
             .clickable(onClick = {})
     ) {
@@ -106,7 +106,7 @@ fun walletActionButton(
         Text(
             text = text,
             modifier = Modifier
-                .padding(top = 83.dp)
+                .padding(top = 80.dp)
                 .align(Alignment.BottomCenter),
             color = Color.White,
             fontSize = if (text.length > 6) 14.5.sp else 16.sp
