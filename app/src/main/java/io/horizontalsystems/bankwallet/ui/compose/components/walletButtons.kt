@@ -32,7 +32,7 @@ fun createWalletButton(
         onClick = onClick,
         modifier = modifier
 
-            .height(70.dp)
+            .height(75.dp)
             .shadow(0.dp),
         elevation = ButtonDefaults.elevation(
             defaultElevation = 0.dp,
@@ -40,8 +40,8 @@ fun createWalletButton(
             hoveredElevation = 0.dp,
             focusedElevation = 0.dp
         ),
-        shape = RoundedCornerShape(10.dp),
-        contentPadding = PaddingValues(0.dp),
+        shape = RoundedCornerShape(15.dp),
+        contentPadding = PaddingValues(12.dp),
         colors = ButtonDefaults.buttonColors(
             backgroundColor = itemColorFigma
         ),
@@ -60,7 +60,7 @@ fun createWalletButton(
                 Icon(
                     imageVector = imageVector,
                     modifier = Modifier
-                        .size(20.dp)
+                        .size(24.dp)
                         .align(Alignment.CenterHorizontally),
                     contentDescription = "drawable_icons",
                     tint = Color.Unspecified
@@ -73,7 +73,7 @@ fun createWalletButton(
                 text = buttonText,
                 color = Color.White,
                 textAlign = TextAlign.Center,
-                fontSize = 16.sp,
+                fontSize = 15.sp,
 
                 )
         }

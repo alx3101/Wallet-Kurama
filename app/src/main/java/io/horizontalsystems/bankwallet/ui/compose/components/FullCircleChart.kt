@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.ui.compose.components
 
 import android.content.res.Resources
 import android.util.Log
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -54,41 +55,32 @@ fun FullCircleChart(
     val context = LocalContext.current
 
 
-    val colors = listOf(
+    val colors: Array<Color>  = arrayOf(
         Color(237, 110, 0, 255), // Arancione
         Color(31, 27, 222, 255), // Blu
         Color(0, 102, 255, 255), // Ciano
         Color(27, 210, 222, 255), // Ciano
-        Color(255, 255, 255, 255), // Azurro/Grigio
+
 
     )
 
-    fun getColorForPercent(percent: Int): Color {
-        return when {
-            percent > 35 -> colors[0] // arancione
-            percent > 30 -> colors[1] // blu
-            percent > 20 -> colors[2] // ciano
-            percent > 5 -> colors[3] // turchese
-            else -> colors[4] // azzurro/grigio
-        }
+    fun getColorForPercent(percent: Int,index: Int): Color {
+        return colors.getOrElse( index % colors.size) { colors.last()}
     }
 
-
-
-    var startAngle = 0F
+    var startAngle = 270F
 
 
 
     val proportions = percentValues.mapIndexed { index, item ->
+        val color = getColorForPercent(item.toInt(), index)
         val sweepAngle = item / 100 * 360F
-        val color = getColorForPercent(item.toInt())
         val proportion = Triple(startAngle, sweepAngle, color)
-        startAngle += sweepAngle
         proportion
     }
 
     val data = percentValues.mapIndexed { index, item ->
-        val color = getColorForPercent(item.toInt())
+        val color = getColorForPercent(item.toInt(),index)
         val data = Pair(item, color)
         data
     }
@@ -98,6 +90,7 @@ fun FullCircleChart(
         modifier = modifier
             .fillMaxSize()
             .aspectRatio(1f)
+            .animateContentSize()
     ) {
         Canvas(
             modifier = Modifier.fillMaxWidth()
@@ -105,22 +98,23 @@ fun FullCircleChart(
             val strokeWidth = size.width * 0.07f // 20% of total width of chart
             val diameter = size.width - strokeWidth
 
-            data.forEach { (percent, color) ->
+            proportions.forEach {  (startAngle, sweepAngle, color) ->
                 drawArc(
                     color = color,
                     startAngle = startAngle,
-                    sweepAngle = percent / 100 * 360F,
+                    sweepAngle = sweepAngle,
                     useCenter = false,
                     topLeft = Offset(x = strokeWidth / 2f, y = strokeWidth / 2f),
                     style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
                     size = Size(diameter, diameter)
                 )
-                startAngle += percent / 100 * 360F
+
             }
         }
         Column(
             modifier = Modifier
                 .align(Alignment.Center)
+                .padding(top = 1.dp)
         ) {
 
 
@@ -133,14 +127,18 @@ fun FullCircleChart(
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
-
+            Spacer(modifier = Modifier.height(7.dp))
 
             Text(text = "$balance",
           color = Color.White,
             style = TextStyle(
-                fontSize = 25.sp,
-                fontWeight = FontWeight.W500
-            ))
+                fontSize = 30.sp,
+                fontWeight = FontWeight.W400
+            ),
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
 
             IconButton(
                 onClick = {
@@ -149,12 +147,13 @@ fun FullCircleChart(
 
                 },
                 modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
                     .size(20.dp)
                     .padding(top = 25.dp),
 
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.hide_balance),
+                    painter = painterResource(id = R.drawable.hide),
                     contentDescription = null
                 )
             }

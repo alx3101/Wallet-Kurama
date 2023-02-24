@@ -13,7 +13,7 @@
 
     <item
         android:id="@+id/navigation_home"
-        android:icon="@drawable/kurama_icon"
+        android:icon="@drawable/kurama_finance_circle"
         android:title="@string/Balance_Title" />
 
     <item

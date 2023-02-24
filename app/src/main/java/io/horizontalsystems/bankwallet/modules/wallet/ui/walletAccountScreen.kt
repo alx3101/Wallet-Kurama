@@ -34,7 +34,6 @@ import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.balance.*
-import io.horizontalsystems.bankwallet.modules.balance.ui.BalanceItems
 import io.horizontalsystems.bankwallet.modules.balance.ui.WalletBalanceItem
 import io.horizontalsystems.bankwallet.modules.nft.asset.NftAssetModule
 import io.horizontalsystems.bankwallet.modules.nft.holdings.NftHoldingsModule
@@ -96,7 +95,7 @@ fun walletAccountScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
-                Row() {
+                Row( modifier = Modifier.padding(top = 40.dp)) {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
@@ -109,7 +108,7 @@ fun walletAccountScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 50.dp, start = 25.dp, end = 25.dp)
+                        .padding(top = 0.dp, start = 25.dp, end = 25.dp)
                 ) {
 
                    WalletActionsRow(navController)

@@ -37,19 +37,23 @@ fun BalanceForAccount(navController: NavController) {
     Column(
         modifier = Modifier
             .background(Color.Black)
+            .padding(top = 48.dp)
         // .verticalScroll(rememberScrollState())
 
     ) {
         Row(
+            horizontalArrangement = Arrangement.End,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 50.dp, start = 25.dp, end = 25.dp)
+                .padding(horizontal = 40.dp  )
+
         ) {
 
 
             createWalletButton(
                 modifier = Modifier
-                    .weight(1f),
+                    .weight(1f)
+                    .padding(all = 1.dp),
 
                 imageVector = ImageVector.vectorResource(id = R.drawable.create_wallet_icon),
                 buttonText = "Create",
@@ -61,6 +65,8 @@ fun BalanceForAccount(navController: NavController) {
                 backgroundColor = itemColorFigma,
                 fontColor = Color.Black
             )
+
+            Spacer(modifier = Modifier.width(19.dp))
 
             createWalletButton(
                 modifier = Modifier
@@ -91,7 +97,7 @@ fun BalanceForAccount(navController: NavController) {
 
         LazyColumn(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             item {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 viewItems?.let { (regularAccounts, watchAccounts) ->
                     if (regularAccounts.isNotEmpty()) {
@@ -132,10 +138,11 @@ private fun BalanceAccountsSection(
     val uiState = viewModel.uiState
     val totalState = viewModel.totalUiState
 
+
     Crossfade(uiState.viewState) { viewState ->
         when (viewState) {
             ViewState.Success -> {
-                Column {
+                Column ( modifier = Modifier.padding(start = 15.dp, end = 15.dp)  ) {
                     for (accountViewItem in accounts) {
                         val expandedState = accountViewItem.selected
 
@@ -147,7 +154,8 @@ private fun BalanceAccountsSection(
                             navController = navController,
                             uiState = uiState,
                             totalState = totalState,
-                            expandedState = accountViewItem.selected
+                            expandedState = accountViewItem.selected,
+
                         )
                     }
                 }
