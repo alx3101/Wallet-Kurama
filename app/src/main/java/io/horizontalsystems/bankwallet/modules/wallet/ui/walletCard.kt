@@ -423,7 +423,8 @@ private fun WalletIcon(viewItem: BalanceViewItem, viewModel: newBalanceViewModel
         viewItem.syncingProgress.progress?.let { progress ->
             AndroidView(
                 modifier = Modifier
-                    .size(52.dp),
+                    .size(52.dp)
+                    .padding(bottom = 20.dp),
                 factory = { context ->
                     RotatingCircleProgressView(context)
                 },

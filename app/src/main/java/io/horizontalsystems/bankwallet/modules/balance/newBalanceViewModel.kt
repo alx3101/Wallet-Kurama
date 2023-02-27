@@ -59,6 +59,7 @@ class newBalanceViewModel ( private val accountManager: IAccountManager,
     val totalUIStateList = mutableListOf<TotalUIState>()
     val total = totalBalance.totalBalance
     val pieChartData = mutableListOf<Float>()
+    var otherCoinsPecentage = 0f
 
 
     var uiState by mutableStateOf(
@@ -261,9 +262,12 @@ class newBalanceViewModel ( private val accountManager: IAccountManager,
 
     override fun toggleBalanceVisibility() {
         totalBalance.toggleBalanceVisibility()
+        pieChartData.clear()
         viewModelScope.launch {
             service.balanceItemsFlow.value?.let { refreshViewItems(it) }
         }
+
+        calculateAllPercentages()
     }
 
     fun onItem(viewItem: BalanceViewItem) {
@@ -340,6 +344,7 @@ class newBalanceViewModel ( private val accountManager: IAccountManager,
                     val percentage = (coinBalance / walletBalance * 100).toInt()
                     if (percentage != -1) {
                         pieChartData.add(percentage.toFloat())
+                        otherCoinsPecentage = percentage.toFloat()
                     }
 
                 }

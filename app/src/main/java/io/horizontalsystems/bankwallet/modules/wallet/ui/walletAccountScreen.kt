@@ -1,5 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.wallet.ui
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
@@ -21,8 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.ui.res.stringResource
@@ -34,12 +40,15 @@ import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.balance.*
+import io.horizontalsystems.bankwallet.modules.balance.ui.BalanceItems
 import io.horizontalsystems.bankwallet.modules.balance.ui.WalletBalanceItem
 import io.horizontalsystems.bankwallet.modules.nft.asset.NftAssetModule
+import io.horizontalsystems.bankwallet.modules.nft.holdings.NftCollectionViewItem
 import io.horizontalsystems.bankwallet.modules.nft.holdings.NftHoldingsModule
 import io.horizontalsystems.bankwallet.modules.nft.holdings.NftHoldingsViewModel
 import io.horizontalsystems.bankwallet.modules.nft.holdings.nftsCollectionSection
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
+import io.horizontalsystems.bankwallet.ui.compose.OrangeK
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 
 @Composable
@@ -64,8 +73,6 @@ fun walletAccountScreen(
 
     var selectedTabIndex by remember { mutableStateOf(0) }
     val enabledTabs = listOf(!collections.isEmpty(), false, !collections.isEmpty())
-
-
 
 
     var revealedCardId by remember { mutableStateOf<Int?>(null) }
@@ -96,7 +103,7 @@ fun walletAccountScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
-                Row( modifier = Modifier.padding(top = 40.dp)) {
+                Row(modifier = Modifier.padding(top = 40.dp)) {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
@@ -112,7 +119,7 @@ fun walletAccountScreen(
                         .padding(top = 0.dp, start = 25.dp, end = 25.dp)
                 ) {
 
-                   WalletActionsRow(navController)
+                    WalletActionsRow(navController)
 
                 }
 
@@ -136,7 +143,9 @@ fun walletAccountScreen(
                     val tab = Color(red = 31, green = 34, blue = 42)
 
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(top = 0.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 0.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -161,232 +170,147 @@ fun walletAccountScreen(
                                 tabPadding = 24.dp,
                                 cornerRadius = 25.dp,
                                 spacing = 8.dp,
-                                enabledTabs = listOf(true, collections.isNotEmpty(), true)
+                                enabledTabs = listOf(true,true , true)
                             )
                         }
                         ButtonSecondaryCircle(
                             icon = R.drawable.ic_manage_2,
                             onClick = {
-                                navController.slideFromRight(R.id.manageWalletsFragment)
+                                navController.slideFromRight(R.id.coinFragment)
                             }
                         )
                     }
 
-                }
+                    walletAccountScreenContent(
+                        accountViewItem,
+                        viewModel = viewModel,
+                        NFTViewModel = viewModelNFT,
+                        collections,
+                        selectedTabIndex = selectedTabIndex,
+                        navController = navController,
+                        balanceViewItems = balanceViewItems
+                    )
                 }
 
-            if (selectedTabIndex == 0) {
-                items(balanceViewItems, key = { item -> item.wallet.hashCode() }) { item ->
-                    if (item.isWatchAccount) {
-                        walletCard(item, viewModel, navController)
-                    } else {
-                        walletCard(
-                            viewItem = item,
-                            viewModel = viewModel,
-                            navController = navController
-                        )
-                    }
-                }
-            } else if (selectedTabIndex == 1) {
 
-                            collections.forEach { collection ->
-                                nftsCollectionSection(collection, viewModelNFT) { asset ->
-                                    navController.slideFromBottom(
-                                        R.id.nftAssetFragment,
-                                        NftAssetModule.prepareParams(
-                                            asset.collectionUid,
-                                            asset.nftUid
-                                        )
-                                    )
-                                }
-                            }
-                        }
-
-                    }
-                }
             }
-
-
-
-
-    @Composable
-    fun Wallets(
-        balanceViewItems: List<BalanceViewItem>,
-        viewModel: newBalanceViewModel,
-        navController: NavController,
-        accountId: String,
-        sortType: BalanceSortType,
-        uiState: BalanceUiState
-    ) {
-
-
-        var revealedCardId by remember { mutableStateOf<Int?>(null) }
-
-        val listState = rememberSaveable(
-            accountId,
-            sortType,
-            saver = LazyListState.Saver
-        ) {
-            LazyListState()
         }
+    }
+}
 
-        HSSwipeRefresh(
-            state = rememberSwipeRefreshState(uiState.isRefreshing),
-            onRefresh = {
-                viewModel.onRefresh()
-            }
-        ) {
 
-            LazyColumn(
-                modifier = Modifier
-                    .padding(20.dp)
-                    .fillMaxSize(),
-                state = listState,
-                contentPadding = PaddingValues(top = 8.dp, bottom = 18.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                item {
-                    Row() {
-                        IconButton(onClick = { /*TODO*/ }) {
-                            Icon(
-                                imageVector = Icons.Filled.ArrowBack,
-                                contentDescription = "Back button",
-                                tint = Color.White
+
+@Composable
+fun walletAccountScreenContent(accountViewItem: AccountViewItem,
+                               viewModel: newBalanceViewModel,
+                               NFTViewModel: NftHoldingsViewModel,
+                               collectionViewItem: List<NftCollectionViewItem>,
+                               selectedTabIndex: Int, navController: NavController,
+                               balanceViewItems: List<BalanceViewItem>) {
+
+    //NFT
+    val collections = NFTViewModel.viewItems
+    val viewState = NFTViewModel.viewState
+    val uiState = viewModel.uiState
+    when (selectedTabIndex) {
+
+        0 -> {
+
+
+        Crossfade(uiState.viewState) { viewState ->
+            when (viewState) {
+                ViewState.Success -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(color = Color.Black)
+                            .padding(top = 8.dp, bottom = 18.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+
+                        balanceViewItems.forEach { item ->
+                            item.wallet.hashCode()
+                            walletCard(
+                                viewItem = item,
+                                viewModel = viewModel,
+                                navController = navController
                             )
                         }
                     }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 50.dp, start = 25.dp, end = 25.dp)
-                    ) {
-                        walletButton(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(all = 10.dp),
-                            imageVector = ImageVector.vectorResource(id = R.drawable.send_icon),
-                            buttonText = "Create",
-                            onClick = {
-                                navController.navigateWithTermsAccepted {
-                                    navController.slideFromRight(R.id.createAccountFragment)
-                                }
-                            },
-                            backgroundColor = Color.Transparent,
-                            fontColor = Color.White
-                        )
-
-                        walletButton(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(all = 10.dp),
-                            imageVector = ImageVector.vectorResource(id = R.drawable.swap_icon),
-                            buttonText = "Import",
-                            onClick = {
-                                navController.navigateWithTermsAccepted {
-                                    navController.slideFromRight(R.id.restoreMnemonicFragment)
-                                }
-                            },
-                            backgroundColor = Color.Transparent,
-                            fontColor = Color.White
-                        )
-
-                        walletButton(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(all = 10.dp),
-                            imageVector = ImageVector.vectorResource(id = R.drawable.receive_icon),
-                            buttonText = "Import",
-                            onClick = {
-                                navController.navigateWithTermsAccepted {
-                                    navController.slideFromRight(R.id.restoreMnemonicFragment)
-                                }
-                            },
-                            backgroundColor = Color.Transparent,
-                            fontColor = Color.White
-                        )
-                    }
-
-
                 }
-                items(balanceViewItems, key = { item -> item.wallet.hashCode() }) { item ->
-                    if (item.isWatchAccount) {
-                        walletCard(item, viewModel, navController)
-                    } else {
-                        walletCard(
-                            viewItem = item,
-                            viewModel = viewModel,
-                            navController = navController
-                        )
-                    }
+                else -> {
+                    ViewState.Loading
                 }
             }
+        }
+        }
+
+        1 -> {
+            if (collections.isEmpty()) {
+
+                Box(modifier = Modifier.padding(50.dp)) {
+
+
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_image_empty),
+                        contentDescription = null,
+                        modifier = Modifier.align(Alignment.TopCenter)
+                    )
+
+                    Text(
+                        text = "You don't have any NFTs in your wallet",
+                        color = Color.Gray,
+                        style = TextStyle(
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.W400
+                        ),
+                            modifier = Modifier.align(Alignment.BottomCenter)
+                                .padding(top = 60.dp)
+                        )
+                }
+            } else {
+
+
+
+                Text(text = "Ci sono NFT",
+                    color = OrangeK,
+                    style = TextStyle(
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.W400
+                    ),
+
+                    )
+
+             /*   LazyColumn(modifier = Modifier.fillMaxSize()) {
+
+                    collectionViewItem.forEach { collection ->
+                        nftsCollectionSection(collection, NFTViewModel) { asset ->
+                            navController.slideFromBottom(
+                                R.id.nftAssetFragment,
+                                NftAssetModule.prepareParams(
+                                    asset.collectionUid,
+                                    asset.nftUid
+                                )
+                            )
+
+                        }
+                    }
+                }
+
+              */
+            }
+        }
+        2 -> {
+            navController.navigate(R.id.btcBlockchainSettingsFragment)
         }
     }
 
 
-    @Composable
-    fun WalletsBozza(
-        balanceViewItems: List<BalanceViewItem>,
-        viewModel: newBalanceViewModel,
-        navController: NavController,
-        accountId: String,
-        sortType: BalanceSortType,
-        uiState: BalanceUiState
-    ) {
-
-        var revealedCardId by remember { mutableStateOf<Int?>(null) }
-
-        val listState = rememberLazyListState()
-
-        /* HSSwipeRefresh(
-        state = rememberSwipeRefreshState(uiState.isRefreshing),
-        onRefresh = {
-            viewModel.onRefresh()
-        }
-    ) {*/
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize(),
-            state = listState,
-            contentPadding = PaddingValues(top = 8.dp, bottom = 18.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp)
-                ) {
-                    walletButton(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(all = 10.dp),
-                        imageVector = ImageVector.vectorResource(id = R.drawable.send_icon),
-                        buttonText = "Create",
-                        onClick = {
-                            navController.navigateWithTermsAccepted {
-                                navController.slideFromRight(R.id.createAccountFragment)
-                            }
-                        },
-                        backgroundColor = Color.Transparent,
-                        fontColor = Color.White
-                    )
-                }
-            }
-            items(balanceViewItems, key = { item -> item.wallet.hashCode() }) { item ->
-                if (item.isWatchAccount) {
-                    walletCard(item, viewModel, navController)
-                } else {
-                    walletCard(
-                        viewItem = item,
-                        viewModel = viewModel,
-                        navController = navController
-                    )
-                }
-            }
-        }
     }
+
+
+
+
 
 
 

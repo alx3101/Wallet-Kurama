@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -55,24 +56,54 @@ fun KuramaTabRow(
             val isSelected = selectedTabIndex == index
 
 
-            Box(
-                modifier = Modifier
-                    .height(40.dp)
-                    .weight(1f)
-                    .padding(horizontal = spacing / 1)
-                    .background(color = if (isSelected) selectedTabColor else if (enabled) tabColor else tabColor.copy(alpha = 1.0f), shape = RoundedCornerShape(cornerRadius))
-                    .clickable(enabled) { onTabSelected(index) }
-                    .padding(horizontal = tabPadding, vertical = 5.dp)
-                    .align(Alignment.CenterVertically)
-            ) {
-                Text(
-                    modifier = Modifier.align(Alignment.Center),
-                    text = title,
-                    maxLines = 2,
-                    color = if (isSelected) selectedTextColor else if (enabled) textColor else textColor.copy(alpha = 1.0f),
-                    fontWeight = FontWeight.W500,
-                    fontSize = if (title.length > 7) 11.sp else 14.sp
-                )
+            if (index == 2) { // Add an icon to the third tab
+                Box(
+                    modifier = Modifier
+                        .height(40.dp)
+                        .weight(1f)
+                        .padding(horizontal = spacing / 2)
+                        .background(color = if (isSelected) selectedTabColor else if (enabled) tabColor else tabColor.copy(alpha = 1.0f), shape = RoundedCornerShape(cornerRadius))
+                        .clickable(enabled) { onTabSelected(index) }
+                        .padding(horizontal = 15.dp, vertical = 13.5.dp)
+                        .align(Alignment.CenterVertically)
+                ) {
+                    Row {
+                        Text(
+                            modifier = Modifier.weight(1f),
+                            text = title,
+                            maxLines = 1,
+                            color = if (isSelected) selectedTextColor else if (enabled) textColor else textColor.copy(alpha = 1.0f),
+                            fontWeight = FontWeight.W500,
+                            fontSize = if (title.length > 7) 10.sp else 14.sp,
+                            textAlign = TextAlign.Center
+                        )
+                        Image(
+                            painter = painterResource(id = R.drawable.expand_wallet),
+                            contentDescription = null,
+                        modifier = Modifier.size(10.dp).padding(top = 5.dp)
+                        )
+                    }
+                }
+            } else { // Add a regular tab
+                Box(
+                    modifier = Modifier
+                        .height(40.dp)
+                        .weight(1f)
+                        .padding(horizontal = spacing / 1)
+                        .background(color = if (isSelected) selectedTabColor else if (enabled) tabColor else tabColor.copy(alpha = 1.0f), shape = RoundedCornerShape(cornerRadius))
+                        .clickable(enabled) { onTabSelected(index) }
+                        .padding(horizontal = tabPadding, vertical = 5.dp)
+                        .align(Alignment.CenterVertically)
+                ) {
+                    Text(
+                        modifier = Modifier.align(Alignment.Center),
+                        text = title,
+                        maxLines = 2,
+                        color = if (isSelected) selectedTextColor else if (enabled) textColor else textColor.copy(alpha = 1.0f),
+                        fontWeight = FontWeight.W500,
+                        fontSize = if (title.length > 7) 11.sp else 14.sp
+                    )
+                }
             }
         }
     }

@@ -299,15 +299,19 @@ fun WalletBalanceItem(
                             val index = topFourItems.indexOf(item)
                             val color = colors[index % colors.size]
 
-                            WalletBalanceCard(
-                                item,
-                                viewModel,
-                                accountViewItem,
-                                uiState,
-                                totalState,
-                                navController,
-                                color
-                            )
+                            BoxWithConstraints {
+                                WalletBalanceCard(
+                                    item,
+                                    viewModel,
+                                    accountViewItem,
+                                    uiState,
+                                    totalState,
+                                    navController,
+                                    color,
+                                    maxWidth = maxWidth,
+                                    maxHeight = maxHeight,
+                                )
+                            }
 
                             Spacer(Modifier.width(17.dp))
 
@@ -589,18 +593,25 @@ fun BalanceItems(
                                 val index = topFourItems.indexOf(item)
                                 val color = colors[index % colors.size]
 
-                                BalanceCard(
-                                    modifier = Modifier,
-                                    item,
-                                    viewModel,
-                                    accountViewItem,
-                                    uiState,
-                                    totalState,
-                                    navController,
-                                    color
-                                )
+                                BoxWithConstraints() {
 
-                                Spacer(Modifier.width(17.dp))
+
+                                    BalanceCard(
+                                        modifier = Modifier,
+                                        item,
+                                        viewModel,
+                                        accountViewItem,
+                                        uiState,
+                                        totalState,
+                                        navController,
+                                        color,
+                                        maxWidth
+                                    )
+
+
+                                }
+
+                                Spacer(Modifier.width(15.dp))
 
                             }
                         }
