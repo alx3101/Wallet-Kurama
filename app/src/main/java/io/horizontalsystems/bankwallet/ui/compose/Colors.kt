@@ -39,6 +39,9 @@ class Colors(
     val yellow20 = Yellow20
 
     val orangeK = OrangeK
+    val blueK = BlueK
+    val lightBlueK = LightBlueK
+    val cyanK = CyanK
     val yellowD = YellowD
     val yellowL = YellowL
     val greenD = GreenD

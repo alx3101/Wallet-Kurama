@@ -45,6 +45,7 @@ object BalanceModule {
                 FaqManager,
 
 
+
                 ) as T
         }
     }

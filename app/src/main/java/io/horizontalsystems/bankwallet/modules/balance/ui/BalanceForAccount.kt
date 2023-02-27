@@ -16,6 +16,7 @@ import androidx.navigation.NavController
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App.Companion.accountManager
 import io.horizontalsystems.bankwallet.core.navigateWithTermsAccepted
@@ -23,6 +24,7 @@ import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.availablebalance.AvailableBalanceViewModel
 import io.horizontalsystems.bankwallet.modules.balance.*
+import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
 import io.horizontalsystems.bankwallet.ui.compose.components.createWalletButton
 
 @Composable
@@ -32,86 +34,78 @@ fun BalanceForAccount(navController: NavController) {
     val viewModel = viewModel<newBalanceViewModel>(factory = BalanceModule.Factory())
     val viewItems = viewModel.viewItems
     val itemColorFigma = Color(red = 31, green = 34, blue = 42)
-    val totalBalance = viewModel.listData.toString()
-
-    Column(
-        modifier = Modifier
-            .background(Color.Black)
-            .padding(top = 48.dp)
-        // .verticalScroll(rememberScrollState())
-
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.End,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 40.dp  )
-
-        ) {
 
 
-            createWalletButton(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(all = 1.dp),
-
-                imageVector = ImageVector.vectorResource(id = R.drawable.create_wallet_icon),
-                buttonText = "Create",
-                onClick = {
-                    navController.navigateWithTermsAccepted {
-                        navController.slideFromRight(R.id.createAccountFragment)
-                    }
-                },
-                backgroundColor = itemColorFigma,
-                fontColor = Color.Black
-            )
-
-            Spacer(modifier = Modifier.width(19.dp))
-
-            createWalletButton(
-                modifier = Modifier
-                    .weight(1f),
-                imageVector = ImageVector.vectorResource(id = R.drawable.create_wallet_icon),
-                buttonText = "Import",
-                onClick = {
-                    navController.navigateWithTermsAccepted {
-                        navController.slideFromRight(R.id.restoreMnemonicFragment)
-                    }
-                },
-                backgroundColor = itemColorFigma,
-                fontColor = Color.Black
-            )
-        }
-
-
-
-        Column(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-        ) {
-
-        }
         val uiState = viewModel.uiState
         val balanceViewItems = uiState.balanceViewItems
+        HSSwipeRefresh(
+            state = rememberSwipeRefreshState(uiState.isRefreshing),
+            onRefresh = {
+                viewModel.onRefresh()
+
+            }
+        ) {
+
+            LazyColumn(modifier = Modifier.padding(top = 48.dp)) {
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 40.dp  )
+
+                    ) {
 
 
-        LazyColumn(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            item {
-                Spacer(modifier = Modifier.height(10.dp))
+                        createWalletButton(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(all = 1.dp),
 
-                viewItems?.let { (regularAccounts, watchAccounts) ->
-                    if (regularAccounts.isNotEmpty()) {
-                        BalanceAccountsSection(regularAccounts, viewModel, navController)
-                        Spacer(modifier = Modifier.height(32.dp))
+                            imageVector = ImageVector.vectorResource(id = R.drawable.create_wallet_icon),
+                            buttonText = "Create",
+                            onClick = {
+                                navController.navigateWithTermsAccepted {
+                                    navController.slideFromRight(R.id.createAccountFragment)
+                                }
+                            },
+                            backgroundColor = itemColorFigma,
+                            fontColor = Color.Black
+                        )
+
+                        Spacer(modifier = Modifier.width(19.dp))
+
+                        createWalletButton(
+                            modifier = Modifier
+                                .weight(1f),
+                            imageVector = ImageVector.vectorResource(id = R.drawable.create_wallet_icon),
+                            buttonText = "Import",
+                            onClick = {
+                                navController.navigateWithTermsAccepted {
+                                    navController.slideFromRight(R.id.restoreMnemonicFragment)
+                                }
+                            },
+                            backgroundColor = itemColorFigma,
+                            fontColor = Color.Black
+                        )
                     }
 
-                    if (watchAccounts.isNotEmpty()) {
-                        BalanceAccountsSection(watchAccounts, viewModel, navController)
-                        Spacer(modifier = Modifier.height(32.dp))
-                    }
-                }
 
-                /* Column(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    viewItems?.let { (regularAccounts, watchAccounts) ->
+                        if (regularAccounts.isNotEmpty()) {
+                            BalanceAccountsSection(regularAccounts, viewModel, navController)
+                            Spacer(modifier = Modifier.height(32.dp))
+                        }
+
+                        if (watchAccounts.isNotEmpty()) {
+                            BalanceAccountsSection(watchAccounts, viewModel, navController)
+                            Spacer(modifier = Modifier.height(32.dp))
+                        }
+                    }
+
+                    /* Column(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             BalanceItems(
                 balanceViewItems,
                 viewModel,
@@ -124,10 +118,11 @@ fun BalanceForAccount(navController: NavController) {
         }
         */
 
+                }
             }
         }
     }
-}
+
 
 @Composable
 private fun BalanceAccountsSection(
@@ -154,7 +149,7 @@ private fun BalanceAccountsSection(
                             navController = navController,
                             uiState = uiState,
                             totalState = totalState,
-                            expandedState = accountViewItem.selected,
+                            expandedState = accountViewItem.selected ,
 
                         )
                     }

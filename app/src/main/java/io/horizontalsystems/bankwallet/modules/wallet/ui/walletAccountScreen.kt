@@ -82,6 +82,7 @@ fun walletAccountScreen(
         state = rememberSwipeRefreshState(uiState.isRefreshing),
         onRefresh = {
             viewModel.onRefresh()
+
         }
     ) {
 
@@ -118,7 +119,7 @@ fun walletAccountScreen(
 
                 Column(
                     modifier = Modifier
-                        .padding(10.dp)
+                        .padding(15.dp)
                 ) {
                     WalletBalanceItem(
                         balanceViewItems,
@@ -135,7 +136,7 @@ fun walletAccountScreen(
                     val tab = Color(red = 31, green = 34, blue = 42)
 
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(top = 13.dp),
+                        modifier = Modifier.fillMaxWidth().padding(top = 0.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {

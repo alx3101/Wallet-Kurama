@@ -3,6 +3,8 @@ package io.horizontalsystems.bankwallet.ui.compose.components
 import android.content.res.Resources
 import android.util.Log
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -10,7 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -50,26 +52,24 @@ fun FullCircleChart(
     balance: String
 
 ) {
-    val figmaOrange =  Color(237, 110, 0, 255)
-    val sp = 21 * Resources.getSystem().displayMetrics.scaledDensity / (410/160)
+    val figmaOrange = Color(237, 110, 0, 255)
+    val sp = 21 * Resources.getSystem().displayMetrics.scaledDensity / (410 / 160)
     val context = LocalContext.current
 
-
-    val colors: Array<Color>  = arrayOf(
+    val colors: Array<Color> = arrayOf(
         Color(0xFFED6E00),
         Color(0xFF1D1BDE),
         Color(0xFF0066FF),
-        Color(0xFF1BD2DE)
+        Color(0xFF1BD2DE),
+        Color(0xFF7283BE)
     )
 
-    fun getColorForPercent(percent: Int,index: Int): Color {
-        return colors.getOrElse( index % colors.size) { colors.last()}
+    fun getColorForPercent(percent: Int, index: Int): Color {
+        return colors.getOrElse(index % colors.size) { colors.last() }
     }
 
-    var startAngle = 50F
+    var startAngle = 105F
     var prevEndAngle = startAngle
-
-
 
     val proportions = percentValues.mapIndexed { index, item ->
         val color = getColorForPercent(item.toInt(), index)
@@ -79,13 +79,21 @@ fun FullCircleChart(
         proportion
     }
 
-
     val data = percentValues.mapIndexed { index, item ->
-        val color = getColorForPercent(item.toInt(),index)
+        val color = getColorForPercent(item.toInt(), index)
         val data = Pair(item, color)
         data
     }
 
+    var animationPlayed by remember { mutableStateOf(false) }
+    val maxAngle by animateFloatAsState(
+        targetValue = if (animationPlayed) 360f else 0f,
+        animationSpec = tween(durationMillis = 2500)
+    )
+
+    LaunchedEffect(Unit) {
+        animationPlayed = true
+    }
 
     Box(
         modifier = modifier
@@ -96,11 +104,11 @@ fun FullCircleChart(
         Canvas(
             modifier = Modifier.fillMaxWidth(),
         ) {
-            val strokeWidth = size.width * 0.07f // 20% of total width of chart
+            val strokeWidth = size.width * 0.075f // 20% of total width of chart
             val diameter = size.width - strokeWidth
 
             drawArc(
-                color = Color(114,131,190,255),
+                color = Color(237, 110, 0, 255),
                 startAngle = 0f,
                 sweepAngle = 360f,
                 useCenter = false,
@@ -109,19 +117,23 @@ fun FullCircleChart(
                 size = Size(diameter, diameter)
             )
 
-            proportions.forEach {  (startAngle, endAngle, color) ->
+            var prevEndAngle = 105f
+            percentValues.forEachIndexed { index, item ->
+                val color = getColorForPercent(item.toInt(), index)
+                val sweepAngle = item / 100f * maxAngle
                 drawArc(
                     color = color,
-                    startAngle = startAngle ,
-                    sweepAngle = endAngle - startAngle,
+                    startAngle = prevEndAngle,
+                    sweepAngle = sweepAngle,
                     useCenter = false,
                     topLeft = Offset(x = strokeWidth / 2f, y = strokeWidth / 2f),
                     style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
                     size = Size(diameter, diameter)
                 )
-
+                prevEndAngle += sweepAngle
             }
         }
+
         Column(
             modifier = Modifier
                 .align(Alignment.Center)

@@ -66,9 +66,6 @@ fun BalanceCard(
 
     ) {
 
-
-
-
          if (viewItem.secondaryValue.visible) {
 
              Row(modifier = Modifier) {
@@ -94,15 +91,8 @@ fun BalanceCard(
                      Text(text = "${viewModel.calculatePercentage(viewItem,totalState)}%",
                          style = TextStyle(color = Color.White))
 
-
-                         viewModel.calculateAndAddPercentage(viewItem, totalState)
-
-
-
-
                  }
              }
-
 
          } else {
 
@@ -155,10 +145,11 @@ fun WalletBalanceCard(
 
     if (viewItem.secondaryValue.visible) {
 
-        Row(modifier = Modifier) {
+        Row() {
 
             Box(modifier = Modifier
-                .size(15.dp)
+                .padding(top = 7.dp, end = 3.5.dp)
+                .size(14.dp)
                 .align(Alignment.Top)
                 .background(color,CircleShape)
                 .clip(CircleShape)
@@ -167,8 +158,8 @@ fun WalletBalanceCard(
             Column(
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .padding(10.dp)
-                    .height(40.dp)
+                    .padding(5.dp)
+                    .height(100.dp)
             ) {
 
                 val context = LocalContext.current
@@ -178,7 +169,7 @@ fun WalletBalanceCard(
                 Text(text = "${viewModel.calculatePercentage(viewItem,totalState)}%",
                     style = TextStyle(color = Color.White))
 
-                viewModel.calculateAndAddPercentage(viewItem, totalState)
+
 
 
             }
@@ -437,5 +428,6 @@ private fun onSyncErrorClicked(viewItem: BalanceViewItem, viewModel: BalanceView
         }
     }
 }
+
 
 

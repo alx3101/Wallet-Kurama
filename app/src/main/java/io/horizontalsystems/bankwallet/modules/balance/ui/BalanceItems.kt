@@ -45,6 +45,7 @@ import io.horizontalsystems.bankwallet.modules.balance.*
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.modules.rateapp.RateAppModule
 import io.horizontalsystems.bankwallet.modules.rateapp.RateAppViewModel
+import io.horizontalsystems.bankwallet.modules.wallet.ui.walletCard
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
 import io.horizontalsystems.bankwallet.ui.compose.components.*
@@ -289,20 +290,28 @@ fun WalletBalanceItem(
                         balanceViewItems.sortedWith(compareByDescending { it.secondaryValue.value })
                             .take(4)
 
-                    items(topFourItems, key = { item -> item.wallet.hashCode() }) { item ->
+                    if (secondaryAmount == "~$0") {
 
-                        val index = topFourItems.indexOf(item)
-                        val color = colors[index % colors.size]
+                    } else {
 
-                        WalletBalanceCard(
-                            item,
-                            viewModel,
-                            accountViewItem,
-                            uiState,
-                            totalState,
-                            navController,
-                            color
-                        )
+                        items(topFourItems, key = { item -> item.wallet.hashCode() }) { item ->
+
+                            val index = topFourItems.indexOf(item)
+                            val color = colors[index % colors.size]
+
+                            WalletBalanceCard(
+                                item,
+                                viewModel,
+                                accountViewItem,
+                                uiState,
+                                totalState,
+                                navController,
+                                color
+                            )
+
+                            Spacer(Modifier.width(17.dp))
+
+                        }
                     }
                 }
             }
@@ -423,7 +432,9 @@ fun BalanceItems(
 
 
                     }
-                    Column(modifier = Modifier.align(Alignment.CenterHorizontally).offset( y = -30.dp)) {
+                    Column(modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .offset(y = -30.dp)) {
 
 
                         Text(text = accountViewItem.title,
@@ -432,7 +443,8 @@ fun BalanceItems(
                                 fontSize = 25.sp,
                                 fontWeight = FontWeight.W400
                             ),
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
                                 .padding(bottom = 10.dp)
                         )
 
@@ -564,26 +576,35 @@ fun BalanceItems(
 
                         val topFourItems = balanceViewItems.sortedWith(compareByDescending { it.secondaryValue.value }).take(4)
 
-                        items(topFourItems, key = { item -> item.wallet.hashCode() }) { item ->
 
-                            val index = topFourItems.indexOf(item)
-                            val color = colors[index % colors.size]
-
-                            BalanceCard(
-                                modifier = Modifier,
-                                item,
-                                viewModel,
-                                accountViewItem,
-                                uiState,
-                                totalState,
-                                navController,
-                                color
-                            )
-
-                            Spacer(Modifier.width(17.dp))
+                        if (secondaryAmount == "~$0") {
+                            
 
 
+
+                        } else {
+
+                            items(topFourItems, key = { item -> item.wallet.hashCode() }) { item ->
+
+                                val index = topFourItems.indexOf(item)
+                                val color = colors[index % colors.size]
+
+                                BalanceCard(
+                                    modifier = Modifier,
+                                    item,
+                                    viewModel,
+                                    accountViewItem,
+                                    uiState,
+                                    totalState,
+                                    navController,
+                                    color
+                                )
+
+                                Spacer(Modifier.width(17.dp))
+
+                            }
                         }
+
                     }
                 }
             }

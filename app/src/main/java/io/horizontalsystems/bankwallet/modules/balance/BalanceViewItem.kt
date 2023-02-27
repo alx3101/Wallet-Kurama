@@ -46,7 +46,7 @@ data class BalanceViewItem(
 data class DeemedValue<T>(val value: T, val dimmed: Boolean = false, val visible: Boolean = true)
 data class SyncingProgress(val progress: Int?, val dimmed: Boolean = false)
 
-class BalanceViewItemFactory {
+class BalanceViewItemFactory () {
 
     private fun coinValue(
         state: AdapterState?,
@@ -242,7 +242,7 @@ class BalanceViewItemFactory {
 
         val primaryValue: DeemedValue<String>
         val secondaryValue: DeemedValue<String>
-        val percentCoin: Float
+
         when (balanceViewType) {
             BalanceViewType.CoinThenFiat -> {
                 primaryValue = coinValueStr
