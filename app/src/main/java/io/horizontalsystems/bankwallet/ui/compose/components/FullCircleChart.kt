@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.ui.compose.components
 
 import android.content.res.Resources
+import android.content.res.Resources.Theme
 import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
@@ -9,6 +10,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Colors
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -40,6 +42,7 @@ import androidx.ui.core.px
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewModel
 import io.horizontalsystems.bankwallet.modules.balance.newBalanceViewModel
+import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.core.helpers.HudHelper
 import org.koin.core.component.getScopeId
 
@@ -55,6 +58,7 @@ fun FullCircleChart(
     val figmaOrange = Color(237, 110, 0, 255)
     val sp = 21 * Resources.getSystem().displayMetrics.scaledDensity / (410 / 160)
     val context = LocalContext.current
+    val colorCircle = ComposeAppTheme.colors.raina
 
     val colors: Array<Color> = arrayOf(
         Color(0xFFED6E00),
@@ -86,6 +90,8 @@ fun FullCircleChart(
     }
 
     var animationPlayed by remember { mutableStateOf(false) }
+
+
     val maxAngle by animateFloatAsState(
         targetValue = if (animationPlayed) 360f else 0f,
         animationSpec = tween(durationMillis = 2500)
@@ -108,7 +114,7 @@ fun FullCircleChart(
             val diameter = size.width - strokeWidth
 
             drawArc(
-                color = Color(237, 110, 0, 255),
+                color =  colorCircle.copy(0.10f),
                 startAngle = 0f,
                 sweepAngle = 360f,
                 useCenter = false,
@@ -153,10 +159,10 @@ fun FullCircleChart(
             Spacer(modifier = Modifier.height(7.dp))
 
             Text(text = "$balance",
-          color = Color.White,
+          color = ComposeAppTheme.colors.raina,
             style = TextStyle(
                 fontSize = 30.sp,
-                fontWeight = FontWeight.W400
+                fontWeight = FontWeight.W500
             ),
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
@@ -172,12 +178,13 @@ fun FullCircleChart(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .size(20.dp)
-                    .padding(top = 25.dp),
+                    .padding(top = 5.dp),
 
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.hide),
-                    contentDescription = null
+                    painter = painterResource(id = R.drawable.new_hide),
+                    contentDescription = null,
+                    modifier = Modifier.size(50.dp)
                 )
             }
 

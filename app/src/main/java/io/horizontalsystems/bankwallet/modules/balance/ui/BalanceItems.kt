@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.service.quickaccesswallet.WalletCard
 import android.util.Log
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -39,9 +40,12 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
+import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.availablebalance.AvailableBalanceViewModel
 import io.horizontalsystems.bankwallet.modules.balance.*
+import io.horizontalsystems.bankwallet.modules.manageaccount.ManageAccountModule
+import io.horizontalsystems.bankwallet.modules.manageaccount.ManageAccountScreen
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.modules.rateapp.RateAppModule
 import io.horizontalsystems.bankwallet.modules.rateapp.RateAppViewModel
@@ -50,6 +54,7 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.core.helpers.HudHelper
+import java.math.BigDecimal
 
 
 @Composable
@@ -124,7 +129,9 @@ fun Note(
                 modifier = Modifier.weight(1f),
                 text = title,
                 color = textColor,
-                style = ComposeAppTheme.typography.subhead1
+                style = ComposeAppTheme.typography.subhead1,
+
+
             )
             onClose?.let {
                 HsIconButton(
@@ -189,137 +196,173 @@ fun WalletBalanceItem(
     val itemColorFigma = Color(red = 31, green = 34, blue = 42)
     val context = LocalContext.current
 
-    Spacer(modifier = Modifier.height(10.dp))
+    Crossfade(uiState.viewState) { viewState ->
+        when (viewState) {
+            ViewState.Success -> {
 
-    Box(
+                Box(
 
-        modifier = Modifier
-            .height(300.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .fillMaxWidth()
-            .background(itemColorFigma)
-            .padding(top = 5.dp, start = 15.dp, end = 15.dp)
+                    modifier = Modifier
+                        .height(if (expandedState == true) 300.dp else 135.dp)
+                        .clip(RoundedCornerShape(15.dp))
+                        .fillMaxWidth()
+                        .background(ComposeAppTheme.colors.laguna)
+                        .padding(top = 0.dp, start = 6.dp, end = 6.dp)
+                        .clickable {
+                            navController.navigate(
+                                R.id.walletFragment,
 
-    ) {
+                                )
+                        }
 
-        Column(
-            modifier = Modifier
-                .align(Alignment.Center),
-        ) {
+                ) {
 
-            Row(
-                modifier = Modifier
-                    .height(50.dp)
-                    .padding(all = 1.dp)
-
-
-            ) {
-
-                Spacer(Modifier.weight(1f))
-
-                IconButton(
-                    onClick = {
-                        navController.slideFromBottom(
-                            R.id.manageAccountsFragment,
-                            ManageAccountsModule.prepareParams(ManageAccountsModule.Mode.Switcher)
-                        )
-                    },
-
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .height(300.dp)
                     ) {
-                    Image(
-                        painter = painterResource(id = io.horizontalsystems.bankwallet.R.drawable.more_dots),
-                        contentDescription = null
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(20.dp))
-            Box(
-                modifier = Modifier
-                    .height(170.dp)
-                    .offset(y = -40.dp)
-                    .background(Color.Transparent)
-                    .padding(all = 5.dp)
-            )
-            {
-                when (totalState) {
-                    TotalUIState.Hidden -> {
-
-                        secondaryAmount = "*****"
-
-                    }
-                    is TotalUIState.Visible -> {
-                        secondaryAmount = totalState.secondaryAmountStr
-
-                    }
-                }
-
-                FullCircleChart(
-                    modifier = Modifier.scale(0.6f),
-                    percentValues = viewModel.pieChartData,
-                    viewModel = viewModel,
-                    title = accountViewItem.name,
-                    balance = secondaryAmount.toString()
-
-                )
-
-            }
+                        Row(
+                            modifier = Modifier
+                                .height(50.dp)
+                                .padding(all = 1.dp)
 
 
-            var revealedCardId by remember { mutableStateOf<Int?>(null) }
+                        ) {
 
-            val listState = rememberSaveable(
-                accountId,
-                sortType,
-                saver = LazyListState.Saver
-            ) {
-                LazyListState()
-            }
+                            Spacer(Modifier.weight(1f))
 
-            HSSwipeRefresh(
-                state = rememberSwipeRefreshState(uiState.isRefreshing),
-                onRefresh = {
-                    viewModel.onRefresh()
-                }
-            ) {
-                LazyRow(
-                    modifier = Modifier.fillMaxSize(),
-                    state = listState,
+                            IconButton(
+                                onClick = {
+                                    navController.navigate(
+                                        R.id.manageAccountFragment,
+                                        ManageAccountModule.prepareParams(accountViewItem.id)
+                                    )
+                                },
 
-                    ) {
-                    val topFourItems =
-                        balanceViewItems.sortedWith(compareByDescending { it.secondaryValue.value })
-                            .take(4)
-
-                    if (secondaryAmount == "~$0") {
-
-                    } else {
-
-                        items(topFourItems, key = { item -> item.wallet.hashCode() }) { item ->
-
-                            val index = topFourItems.indexOf(item)
-                            val color = colors[index % colors.size]
-
-                            BoxWithConstraints {
-                                WalletBalanceCard(
-                                    item,
-                                    viewModel,
-                                    accountViewItem,
-                                    uiState,
-                                    totalState,
-                                    navController,
-                                    color,
-                                    maxWidth = maxWidth,
-                                    maxHeight = maxHeight,
+                                ) {
+                                Image(
+                                    painter = painterResource(id = io.horizontalsystems.bankwallet.R.drawable.more_dots),
+                                    contentDescription = null
                                 )
                             }
+                        }
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Box(
+                            modifier = Modifier
+                                .height(170.dp)
+                                .offset(y = -40.dp)
+                                .background(Color.Transparent)
+                                .padding(all = 50.dp)
+                        )
+                        {
+                            when (totalState) {
+                                TotalUIState.Hidden -> {
 
-                            Spacer(Modifier.width(17.dp))
+                                    secondaryAmount = "*****"
 
+                                }
+                                is TotalUIState.Visible -> {
+                                    secondaryAmount = totalState.secondaryAmountStr
+
+                                }
+                            }
+
+                            FullCircleChart(
+                                modifier = Modifier.scale(0.8f),
+                                percentValues = viewModel.pieChartData,
+                                viewModel = viewModel,
+                                title = accountViewItem.name,
+                                balance = secondaryAmount.toString()
+
+                            )
+
+                        }
+
+
+                        var revealedCardId by remember { mutableStateOf<Int?>(null) }
+
+                        val listState = rememberSaveable(
+                            accountId,
+                            sortType,
+                            saver = LazyListState.Saver
+                        ) {
+                            LazyListState()
+                        }
+
+                        BoxWithConstraints(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 8.dp)
+                        ) {
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 1.dp, end = 3.dp),
+                                horizontalArrangement = Arrangement.SpaceAround
+                            ) {
+
+                                BoxWithConstraints(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(end = 8.dp)
+                                ) {
+
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 1.dp, end = 3.dp),
+                                        horizontalArrangement = Arrangement.SpaceAround
+                                    ) {
+
+
+                                        val topFourItems = balanceViewItems
+                                            .sortedWith(compareByDescending { it.secondaryValue.value })
+                                            .take(4)
+
+
+                                        // create balance card composables with weight
+                                        topFourItems.forEachIndexed { index, item ->
+                                            val color = colors[index % colors.size]
+                                            WalletBalanceCard(
+                                                modifier = Modifier
+                                                    .padding(end = 5.dp),
+                                                viewItem = item,
+                                                viewModel = viewModel,
+                                                accountViewItem = accountViewItem,
+                                                uiState = uiState,
+                                                totalState = totalState,
+                                                navController = navController,
+                                                color = color,
+
+                                                )
+
+                                        }
+
+
+                                        NonFunctionalBalanceCard(
+                                            modifier = Modifier,
+                                            viewModel = viewModel,
+                                            color = Color(0xFF7283BE),
+                                            CoinCode = "Other",
+                                            "100%"
+
+
+                                        )
+
+
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
 
+            else -> {
+                ViewState.Loading
+            }
         }
     }
 }
@@ -370,256 +413,287 @@ fun BalanceItems(
 
     Spacer(modifier = Modifier.height(11.dp))
 
-    Box(
+    Crossfade(uiState.viewState) { viewState ->
+        when (viewState) {
+            ViewState.Success -> {
 
-        modifier = Modifier
-            .height(if (expandedState == true) 300.dp else 135.dp)
-            .clip(RoundedCornerShape(15.dp))
-            .fillMaxWidth()
-            .background(itemColorFigma)
-            .padding(top = 0.dp, start = 6.dp, end = 6.dp)
-            .clickable {
-                navController.navigate(
-                    R.id.walletFragment,
-
-                    )
-            }
-
-    ) {
-
-        Column(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .height(300.dp)
-        ) {
-            if (expandedState == false) {
-                Log.e("L'id è: ", accountId)
-                Column {
-
-                    Row(
-                        modifier = Modifier
-                            .height(50.dp)
-                            .padding(all = 1.dp)
-
-
-                    ) {
-                        IconButton(
-                            onClick = {
-                                viewModel.onSelect(accountViewItem)
-                                Log.d("L'ID DELL WALLET è", accountId)
-
-                            },
-                            modifier = Modifier.rotate(if (expandedState == false) 0f else 180f)
-
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.expand_wallet),
-                                contentDescription = null
-                            )
-                        }
-
-                        Spacer(Modifier.weight(1f))
-
-                        IconButton(
-                            onClick = {
-
-
-                            },
-
-
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.more_dots),
-                                contentDescription = null
-                            )
-                        }
-
-
-                    }
-                    Column(modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .offset(y = -30.dp)) {
-
-
-                        Text(text = accountViewItem.title,
-                            color = orangeKurama,
-                            style = TextStyle(
-                                fontSize = 25.sp,
-                                fontWeight = FontWeight.W400
-                            ),
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(bottom = 10.dp)
-                        )
-
-                        Text(text = "$ 100.257.497,45",
-                            color = Color.White,
-                            style = TextStyle(
-                                fontSize = 25.sp,
-                                fontWeight = FontWeight.W400
-                            ),
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        )
-
-                        IconButton(
-                            onClick = {
-                                viewModel.toggleBalanceVisibility()
-                                HudHelper.vibrate(context)
-
-                            },
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .size(27.dp)
-                                .padding(top = 10.dp),
-
-                            ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.hide),
-                                contentDescription = null
-                            )
-                        }
-
-
-
-                    }
-                }
-            } else {
-
-                Row(
-                    modifier = Modifier
-                        .height(50.dp)
-                        .padding(all = 1.dp)
-
-
-                ) {
-                    IconButton(
-                        onClick = {
-                            expandedState == false
-                        },
-                        modifier = Modifier.rotate(if (expandedState == true) 180f else 0f)
-
-                    ) {
-                        Image(
-                            painter = painterResource(id = io.horizontalsystems.bankwallet.R.drawable.expand_wallet),
-                            contentDescription = null
-                        )
-                    }
-
-                    Spacer(Modifier.weight(1f))
-
-                    IconButton(
-                        onClick = {
-                            navController.slideFromBottom(
-                                R.id.manageAccountsFragment,
-                                ManageAccountsModule.prepareParams(ManageAccountsModule.Mode.Switcher)
-                            )
-                        },
-
-                        ) {
-                        Image(
-                            painter = painterResource(id = io.horizontalsystems.bankwallet.R.drawable.more_dots),
-                            contentDescription = null
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(20.dp))
                 Box(
                     modifier = Modifier
-                        .height(170.dp)
-                        .offset(y = -40.dp)
-                        .background(Color.Transparent)
-                        .padding(all = 50.dp)
-                )
-                {
-                    when (totalState) {
-                        TotalUIState.Hidden -> {
-
-                            secondaryAmount = "*****"
-
-                        }
-                        is TotalUIState.Visible -> {
-                            secondaryAmount = totalState.secondaryAmountStr
-
-                        }
-                    }
-
-                    FullCircleChart(
-                        modifier = Modifier.scale(0.6f),
-                        percentValues = viewModel.pieChartData,
-                        viewModel = viewModel,
-                        title = accountViewItem.title,
-                        balance = secondaryAmount.toString()
-
-                    )
-
-                }
-
-
-                var revealedCardId by remember { mutableStateOf<Int?>(null) }
-
-                val listState = rememberSaveable(
-                    accountId,
-                    sortType,
-                    saver = LazyListState.Saver
-                ) {
-                    LazyListState()
-                }
-
-                HSSwipeRefresh(
-                    state = rememberSwipeRefreshState(uiState.isRefreshing),
-                    onRefresh = {
-                        viewModel.onRefresh()
-                    }
-                ) {
-                    LazyRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        state = listState,
-                        contentPadding = PaddingValues(bottom = 1.dp)
-
-                        ) {
-
-                        val topFourItems = balanceViewItems.sortedWith(compareByDescending { it.secondaryValue.value }).take(4)
-
-
-                        if (secondaryAmount == "~$0") {
-                            
-
-
-
-                        } else {
-
-                            items(topFourItems, key = { item -> item.wallet.hashCode() }) { item ->
-
-                                val index = topFourItems.indexOf(item)
-                                val color = colors[index % colors.size]
-
-                                BoxWithConstraints() {
-
-
-                                    BalanceCard(
-                                        modifier = Modifier,
-                                        item,
-                                        viewModel,
-                                        accountViewItem,
-                                        uiState,
-                                        totalState,
-                                        navController,
-                                        color,
-                                        maxWidth
+                        .height(if (expandedState == true) 300.dp else 135.dp)
+                        .clip(RoundedCornerShape(15.dp))
+                        .fillMaxWidth()
+                        .background(ComposeAppTheme.colors.laguna)
+                        .padding(top = 0.dp, start = 6.dp, end = 6.dp)
+                        .clickable(
+                            onClick = {
+                                if (expandedState == true) {
+                                    navController.navigate(
+                                        R.id.walletFragment,
                                     )
+                                }
+                            },
+                        )
+                ) {
+
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .height(300.dp)
+                    ) {
+                        if (expandedState == false) {
+                            Log.e("L'id è: ", accountId)
+                            Column {
+
+                                Row(
+                                    modifier = Modifier
+                                        .height(50.dp)
+                                        .padding(all = 1.dp)
+
+
+                                ) {
+                                    IconButton(
+                                        onClick = {
+                                            viewModel.onSelect(accountViewItem)
+                                            Log.d("L'ID DELL WALLET è", accountId)
+
+                                        },
+                                        modifier = Modifier.rotate(if (expandedState == false) 0f else 180f)
+
+                                    ) {
+                                        Image(
+                                            painter = painterResource(id = R.drawable.expand_wallet),
+                                            contentDescription = null
+                                        )
+                                    }
+
+                                    Spacer(Modifier.weight(1f))
+
+                                    IconButton(
+                                        onClick = {
+                                            navController.navigate(
+                                                R.id.manageAccountFragment,
+                                                ManageAccountModule.prepareParams(accountViewItem.accountId)
+                                            )
+                                        },
+                                    ) {
+                                        Image(
+                                            painter = painterResource(id = R.drawable.more_dots),
+                                            contentDescription = null
+                                        )
+                                    }
 
 
                                 }
+                                Column(
+                                    modifier = Modifier
+                                        .align(Alignment.CenterHorizontally)
+                                        .offset(y = -30.dp)
+                                ) {
 
-                                Spacer(Modifier.width(15.dp))
+
+                                    Text(
+                                        text = accountViewItem.title,
+                                        color = ComposeAppTheme.colors.orangeK,
+                                        style = TextStyle(
+                                            fontSize = 25.sp,
+                                            fontWeight = FontWeight.W400
+                                        ),
+                                        modifier = Modifier
+                                            .align(Alignment.CenterHorizontally)
+                                            .padding(bottom = 10.dp)
+                                    )
+
+                                    Text(
+                                        text = "",
+                                        color = ComposeAppTheme.colors.raina,
+                                        style = TextStyle(
+                                            fontSize = 25.sp,
+                                            fontWeight = FontWeight.W400
+                                        ),
+                                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                                    )
+
+                                    IconButton(
+                                        onClick = {
+                                            viewModel.toggleBalanceVisibility()
+                                            HudHelper.vibrate(context)
+
+                                        },
+                                        modifier = Modifier
+                                            .align(Alignment.CenterHorizontally)
+                                            .size(50.dp)
+                                            .padding(top = 10.dp),
+
+                                        ) {
+                                        Image(
+                                            painter = painterResource(id = R.drawable.new_hide),
+                                            contentDescription = null
+                                        )
+                                    }
+
+
+                                }
+                            }
+                        } else {
+
+                            Row(
+                                modifier = Modifier
+                                    .height(50.dp)
+                                    .padding(all = 1.dp)
+
+
+                            ) {
+                                IconButton(
+                                    onClick = {
+                                        expandedState == false
+                                    },
+                                    modifier = Modifier.rotate(if (expandedState == true) 180f else 0f)
+
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = io.horizontalsystems.bankwallet.R.drawable.expand_wallet),
+                                        contentDescription = null
+                                    )
+                                }
+
+                                Spacer(Modifier.weight(1f))
+
+                                IconButton(
+                                    onClick = {
+                                        navController.navigate(
+                                            R.id.manageAccountFragment,
+                                            ManageAccountModule.prepareParams(accountViewItem.accountId)
+                                        )
+                                    },
+
+                                    ) {
+                                    Image(
+                                        painter = painterResource(id = io.horizontalsystems.bankwallet.R.drawable.more_dots),
+                                        contentDescription = null
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Box(
+                                modifier = Modifier
+                                    .height(170.dp)
+                                    .offset(y = -40.dp)
+                                    .background(Color.Transparent)
+                                    .padding(all = 50.dp)
+                            )
+                            {
+                                when (totalState) {
+                                    TotalUIState.Hidden -> {
+
+                                        secondaryAmount = "*****"
+
+                                    }
+                                    is TotalUIState.Visible -> {
+                                        secondaryAmount = totalState.secondaryAmountStr
+
+                                    }
+                                }
+
+                                FullCircleChart(
+                                    modifier = Modifier.scale(0.8f),
+                                    percentValues = viewModel.pieChartData,
+                                    viewModel = viewModel,
+                                    title = accountViewItem.title,
+                                    balance = secondaryAmount.toString()
+
+                                )
 
                             }
-                        }
 
+
+                            var revealedCardId by remember { mutableStateOf<Int?>(null) }
+
+                            val listState = rememberSaveable(
+                                accountId,
+                                sortType,
+                                saver = LazyListState.Saver
+                            ) {
+                                LazyListState()
+                            }
+                            BoxWithConstraints(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(end = 8.dp)
+                            ) {
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(start = 1.dp, end = 3.dp),
+                                    horizontalArrangement = Arrangement.SpaceAround
+                                ) {
+
+                                    BoxWithConstraints(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(end = 8.dp)
+                                    ) {
+
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(start = 1.dp, end = 3.dp),
+                                            horizontalArrangement = Arrangement.SpaceAround
+                                        ) {
+
+
+                                            val topFourItems = balanceViewItems
+                                                .sortedWith(compareByDescending { it.secondaryValue.value })
+                                                .take(4)
+
+
+                                            // create balance card composables with weight
+                                            topFourItems.forEachIndexed { index, item ->
+                                                val color = colors[index % colors.size]
+                                                BalanceCard(
+                                                    modifier = Modifier
+                                                        .padding(end = 5.dp),
+                                                    viewItem = item,
+                                                    viewModel = viewModel,
+                                                    accountViewItem = accountViewItem,
+                                                    uiState = uiState,
+                                                    totalState = totalState,
+                                                    navController = navController,
+                                                    color = color,
+
+                                                    )
+
+                                            }
+
+
+                                            NonFunctionalBalanceCard(
+                                                modifier = Modifier,
+                                                viewModel = viewModel,
+                                                color = Color(0xFF7283BE),
+                                                CoinCode = "Other",
+                                                "100%"
+
+
+                                            )
+
+
+                                        }
+                                    }
+
+
+                                }
+                            }
+                        }
                     }
                 }
-            }
 
+
+
+
+            }
+            else -> {
+                ViewState.Loading
+            }
         }
     }
 }

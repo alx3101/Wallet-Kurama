@@ -29,6 +29,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.bundleOf
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.ui.res.stringResource
@@ -42,11 +43,17 @@ import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.balance.*
 import io.horizontalsystems.bankwallet.modules.balance.ui.BalanceItems
 import io.horizontalsystems.bankwallet.modules.balance.ui.WalletBalanceItem
+import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.modules.nft.asset.NftAssetModule
 import io.horizontalsystems.bankwallet.modules.nft.holdings.NftCollectionViewItem
 import io.horizontalsystems.bankwallet.modules.nft.holdings.NftHoldingsModule
 import io.horizontalsystems.bankwallet.modules.nft.holdings.NftHoldingsViewModel
 import io.horizontalsystems.bankwallet.modules.nft.holdings.nftsCollectionSection
+import io.horizontalsystems.bankwallet.modules.restoreaccount.resoreprivatekey.RestorePrivateKeyModule
+import io.horizontalsystems.bankwallet.modules.restoreaccount.resoreprivatekey.RestorePrivateKeyViewModel
+import io.horizontalsystems.bankwallet.modules.restoreaccount.restore.RestoreViewModel
+import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.RestoreBlockchainsFragment
+import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
 import io.horizontalsystems.bankwallet.ui.compose.OrangeK
 import io.horizontalsystems.bankwallet.ui.compose.components.*
@@ -57,7 +64,7 @@ fun walletAccountScreen(
     accountViewItem: AccountViewItem,
 ) {
     val account = App.accountManager.activeAccount ?: return
-
+    val restoreViewModel = viewModel<RestorePrivateKeyViewModel>(factory = RestorePrivateKeyModule.Factory())
     val viewModel = viewModel<newBalanceViewModel>(factory = BalanceModule.Factory())
     val uiState = viewModel.uiState
     val balanceViewItems = uiState.balanceViewItems
@@ -97,18 +104,18 @@ fun walletAccountScreen(
             modifier = Modifier
 
                 .fillMaxSize()
-                .background(color = Color.Black),
+                .background(ComposeAppTheme.colors.claude),
             state = listState,
-            contentPadding = PaddingValues(top = 8.dp, bottom = 18.dp),
+            contentPadding = PaddingValues(top = 10.dp, bottom = 18.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
-                Row(modifier = Modifier.padding(top = 40.dp)) {
+                Row(modifier = Modifier.padding(top = 40.dp).height(30.dp)) {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = "Back button",
-                            tint = Color.White
+                            tint = Color.Gray
                         )
                     }
                 }
@@ -162,21 +169,21 @@ fun walletAccountScreen(
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 16.dp),
+                                    .padding(vertical = 14.dp),
                                 tabColor = tab,
                                 selectedTabColor = selected,
                                 textColor = Color.White,
                                 selectedTextColor = Color.White,
                                 tabPadding = 24.dp,
                                 cornerRadius = 25.dp,
-                                spacing = 8.dp,
+                                spacing = 9.dp,
                                 enabledTabs = listOf(true,true , true)
                             )
                         }
                         ButtonSecondaryCircle(
                             icon = R.drawable.ic_manage_2,
                             onClick = {
-                                navController.slideFromRight(R.id.coinFragment)
+                                navController.slideFromRight(R.id.manageWalletsFragment)
                             }
                         )
                     }
@@ -188,7 +195,8 @@ fun walletAccountScreen(
                         collections,
                         selectedTabIndex = selectedTabIndex,
                         navController = navController,
-                        balanceViewItems = balanceViewItems
+                        balanceViewItems = balanceViewItems,
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
 
@@ -206,7 +214,8 @@ fun walletAccountScreenContent(accountViewItem: AccountViewItem,
                                NFTViewModel: NftHoldingsViewModel,
                                collectionViewItem: List<NftCollectionViewItem>,
                                selectedTabIndex: Int, navController: NavController,
-                               balanceViewItems: List<BalanceViewItem>) {
+                               balanceViewItems: List<BalanceViewItem>,
+                               modifier: Modifier) {
 
     //NFT
     val collections = NFTViewModel.viewItems
@@ -215,15 +224,10 @@ fun walletAccountScreenContent(accountViewItem: AccountViewItem,
     when (selectedTabIndex) {
 
         0 -> {
-
-
-        Crossfade(uiState.viewState) { viewState ->
-            when (viewState) {
-                ViewState.Success -> {
                     Column(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .background(color = Color.Black)
+                            .fillMaxWidth()
+                            .background(color = Color.Transparent)
                             .padding(top = 8.dp, bottom = 18.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -231,24 +235,19 @@ fun walletAccountScreenContent(accountViewItem: AccountViewItem,
                         balanceViewItems.forEach { item ->
                             item.wallet.hashCode()
                             walletCard(
+                                modifier = Modifier.fillMaxWidth(),
                                 viewItem = item,
                                 viewModel = viewModel,
                                 navController = navController
                             )
                         }
                     }
-                }
-                else -> {
-                    ViewState.Loading
-                }
             }
-        }
-        }
 
         1 -> {
             if (collections.isEmpty()) {
 
-                Box(modifier = Modifier.padding(50.dp)) {
+                Box(modifier = Modifier.padding(50.dp).fillMaxSize()) {
 
 
                     Image(
@@ -301,7 +300,10 @@ fun walletAccountScreenContent(accountViewItem: AccountViewItem,
             }
         }
         2 -> {
-            navController.navigate(R.id.btcBlockchainSettingsFragment)
+
+            navController.slideFromRight(
+               R.id.restoreSelectCoinsFragment
+            )
         }
     }
 

@@ -54,7 +54,6 @@ class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 requireActivity().moveTaskToBack(true)

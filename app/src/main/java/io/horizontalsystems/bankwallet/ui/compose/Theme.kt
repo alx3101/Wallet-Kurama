@@ -9,6 +9,39 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 
 
+//Kurama Palette
+
+val KuramalightPalette = Colors(
+    jacob = YellowL,
+    remus = GreenL,
+    lucian = RedL,
+    tyler = Light,
+    bran = Dark,
+    leah = SteelDark,
+    claude = Light,
+    lawrence = Color.White,
+    jeremy = SteelLight,
+    laguna = Color.White,
+    raina = Color.Black,
+)
+
+val KuramadarkPalette = Colors(
+    jacob = YellowD,
+    remus = GreenD,
+    lucian = RedD,
+    tyler = Dark,
+    bran = LightGrey,
+    leah = SteelLight,
+    claude = Dark,
+    lawrence = SteelDark,
+    jeremy = Steel20,
+    laguna = Steel20,
+    raina = Color.White,
+)
+
+
+
+//Old Palette
 val lightPalette = Colors(
     jacob = YellowL,
     remus = GreenL,

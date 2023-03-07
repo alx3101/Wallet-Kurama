@@ -10,9 +10,11 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 
 
 @Composable
@@ -32,7 +34,7 @@ fun createWalletButton(
         onClick = onClick,
         modifier = modifier
 
-            .height(75.dp)
+            .height(72.dp)
             .shadow(0.dp),
         elevation = ButtonDefaults.elevation(
             defaultElevation = 0.dp,
@@ -43,7 +45,7 @@ fun createWalletButton(
         shape = RoundedCornerShape(15.dp),
         contentPadding = PaddingValues(12.dp),
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = itemColorFigma
+            backgroundColor = ComposeAppTheme.colors.laguna
         ),
     ) {
         Column (
@@ -71,9 +73,10 @@ fun createWalletButton(
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 text = buttonText,
-                color = Color.White,
+                color = ComposeAppTheme.colors.raina,
                 textAlign = TextAlign.Center,
                 fontSize = 15.sp,
+                fontWeight = FontWeight.W400
 
                 )
         }
@@ -139,6 +142,7 @@ fun walletButton(
                 color = Color.White,
                 textAlign = TextAlign.Center,
                 fontSize = 16.sp,
+                fontWeight = FontWeight.W400
 
             )
         }

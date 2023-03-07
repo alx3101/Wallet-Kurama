@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -69,7 +70,7 @@ fun walletCardSwipable(
             modifier = Modifier
                 .fillMaxHeight()
                 .align(Alignment.CenterEnd)
-                .width(88.dp),
+                .fillMaxWidth(),
             onClick = { viewModel.disable(viewItem) },
             content = {
                 Icon(
@@ -86,7 +87,7 @@ fun walletCardSwipable(
             onReveal = { onReveal(viewItem.wallet.hashCode()) },
             onConceal = onConceal,
             content = {
-                walletCard(viewItem, viewModel, navController)
+                walletCard(Modifier, viewItem, viewModel, navController)
             }
         )
     }
@@ -94,6 +95,7 @@ fun walletCardSwipable(
 
 @Composable
 fun walletCard(
+    modifier: Modifier,
     viewItem: BalanceViewItem,
     viewModel: newBalanceViewModel,
     navController: NavController
@@ -101,7 +103,7 @@ fun walletCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 4.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(ComposeAppTheme.colors.lawrence)
             .clickable(
@@ -135,7 +137,7 @@ fun walletCard(
                             body_leah(
                                 text = viewItem.coinTitle,
                                 maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+                                overflow = TextOverflow.Ellipsis,
                             )
                             Row(
                                 modifier = Modifier
@@ -177,13 +179,23 @@ fun walletCard(
                         Spacer(Modifier.width(24.dp))
                         Column() {
                             if (viewItem.secondaryValue.visible) {
+
                                 Text(
                                     text = viewItem.secondaryValue.value,
                                     color = if (viewItem.secondaryValue.dimmed) ComposeAppTheme.colors.grey else ComposeAppTheme.colors.leah,
                                     style = ComposeAppTheme.typography.headline2,
                                     maxLines = 1,
+                                    textAlign = TextAlign.End,
+                                    modifier = Modifier.align(Alignment.End)
                                 )
-                            }
+                            } else { Text(
+                                text = "****",
+                                color = if (viewItem.secondaryValue.dimmed) ComposeAppTheme.colors.grey else ComposeAppTheme.colors.leah,
+                                style = ComposeAppTheme.typography.headline2,
+                                maxLines = 1,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.align(Alignment.End)
+                            )}
 
                             if (viewItem.syncedUntilTextValue.visible) {
                                 subhead2_grey(
@@ -193,12 +205,21 @@ fun walletCard(
                             }
                             if (viewItem.primaryValue.visible) {
                                 Text(
-                                    text = viewItem.primaryValue.value,
+                                    text = viewItem.primaryValue.value + " " + viewItem.coinCode,
                                     color = if (viewItem.primaryValue.dimmed) ComposeAppTheme.colors.grey50 else ComposeAppTheme.colors.grey,
                                     style = ComposeAppTheme.typography.subhead2,
                                     maxLines = 1,
+                                    textAlign = TextAlign.End,
+                                    modifier = Modifier.align(Alignment.End)
                                 )
-                            }
+                            } else { Text(
+                                text = "****",
+                                color = if (viewItem.primaryValue.dimmed) ComposeAppTheme.colors.grey50 else ComposeAppTheme.colors.grey,
+                                style = ComposeAppTheme.typography.subhead2,
+                                maxLines = 1,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.align(Alignment.End)
+                            ) }
                         }
                     }
 

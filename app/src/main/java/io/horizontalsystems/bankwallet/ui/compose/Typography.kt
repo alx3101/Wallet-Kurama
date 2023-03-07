@@ -4,11 +4,27 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.core.app.NotificationCompat
+import io.horizontalsystems.bankwallet.R
+
+val interFontFamily = FontFamily(
+    Font(R.font.inter_thin, FontWeight.Thin),
+    Font(R.font.inter_extralight, FontWeight.ExtraLight),
+    Font(R.font.inter_light, FontWeight.Light),
+    Font(R.font.inter, FontWeight.Normal),
+    Font(R.font.inter_medium, FontWeight.W500),
+    Font(R.font.inter_bold, FontWeight.Bold),
+    Font(R.font.inter_extrabold, FontWeight.ExtraBold),
+    Font(R.font.inter_black, FontWeight.Black)
+)
+
+
 
 @Immutable
 class Typography internal constructor(
@@ -31,7 +47,7 @@ class Typography internal constructor(
 ) {
 
     constructor(
-        defaultFontFamily: FontFamily = FontFamily.Default,
+        defaultFontFamily: FontFamily = interFontFamily,
         title1: TextStyle = TextStyle(
             fontWeight = FontWeight.Bold,
             fontSize = 38.sp,

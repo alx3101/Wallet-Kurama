@@ -30,82 +30,82 @@ import io.horizontalsystems.bankwallet.ui.compose.components.createWalletButton
 @Composable
 fun BalanceForAccount(navController: NavController) {
 
-
     val viewModel = viewModel<newBalanceViewModel>(factory = BalanceModule.Factory())
     val viewItems = viewModel.viewItems
     val itemColorFigma = Color(red = 31, green = 34, blue = 42)
 
 
-        val uiState = viewModel.uiState
-        val balanceViewItems = uiState.balanceViewItems
-        HSSwipeRefresh(
-            state = rememberSwipeRefreshState(uiState.isRefreshing),
-            onRefresh = {
-                viewModel.onRefresh()
+    val uiState = viewModel.uiState
+    val balanceViewItems = uiState.balanceViewItems
+    HSSwipeRefresh(
+        state = rememberSwipeRefreshState(uiState.isRefreshing),
+        onRefresh = {
+            viewModel.onRefresh()
 
-            }
-        ) {
+        }
+    ) {
+        LazyColumn(modifier = Modifier.padding(top = 0.dp).fillMaxSize()) {
+            item {
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .padding(horizontal = 40.dp)
+                        .padding(top = 50.dp)
 
-            LazyColumn(modifier = Modifier.padding(top = 48.dp)) {
-                item {
-                    Row(
-                        horizontalArrangement = Arrangement.End,
+                ) {
+
+
+                    createWalletButton(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 40.dp  )
+                            .weight(1f)
+                            .padding(all = 1.dp),
 
-                    ) {
+                        imageVector = ImageVector.vectorResource(id = R.drawable.create_wallet_icon),
+                        buttonText = "Create",
+                        onClick = {
+                            navController.navigateWithTermsAccepted {
+                                navController.slideFromRight(R.id.createAccountFragment)
+                            }
+                        },
+                        backgroundColor = itemColorFigma,
+                        fontColor = Color.Black
+                    )
+
+                    Spacer(modifier = Modifier.width(19.dp))
+
+                    createWalletButton(
+                        modifier = Modifier
+                            .weight(1f),
+                        imageVector = ImageVector.vectorResource(id = R.drawable.create_wallet_icon),
+                        buttonText = "Import",
+                        onClick = {
+                            navController.navigateWithTermsAccepted {
+                                navController.slideFromRight(R.id.restoreMnemonicFragment)
+                            }
+                        },
+                        backgroundColor = itemColorFigma,
+                        fontColor = Color.Black
+                    )
+                }
 
 
-                        createWalletButton(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(all = 1.dp),
+                Spacer(modifier = Modifier.height(10.dp))
 
-                            imageVector = ImageVector.vectorResource(id = R.drawable.create_wallet_icon),
-                            buttonText = "Create",
-                            onClick = {
-                                navController.navigateWithTermsAccepted {
-                                    navController.slideFromRight(R.id.createAccountFragment)
-                                }
-                            },
-                            backgroundColor = itemColorFigma,
-                            fontColor = Color.Black
-                        )
-
-                        Spacer(modifier = Modifier.width(19.dp))
-
-                        createWalletButton(
-                            modifier = Modifier
-                                .weight(1f),
-                            imageVector = ImageVector.vectorResource(id = R.drawable.create_wallet_icon),
-                            buttonText = "Import",
-                            onClick = {
-                                navController.navigateWithTermsAccepted {
-                                    navController.slideFromRight(R.id.restoreMnemonicFragment)
-                                }
-                            },
-                            backgroundColor = itemColorFigma,
-                            fontColor = Color.Black
-                        )
+                viewItems?.let { (regularAccounts, watchAccounts) ->
+                    if (regularAccounts.isNotEmpty()) {
+                        BalanceAccountsSection(regularAccounts, viewModel, navController)
+                        Spacer(modifier = Modifier.height(32.dp))
                     }
 
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    viewItems?.let { (regularAccounts, watchAccounts) ->
-                        if (regularAccounts.isNotEmpty()) {
-                            BalanceAccountsSection(regularAccounts, viewModel, navController)
-                            Spacer(modifier = Modifier.height(32.dp))
-                        }
-
-                        if (watchAccounts.isNotEmpty()) {
-                            BalanceAccountsSection(watchAccounts, viewModel, navController)
-                            Spacer(modifier = Modifier.height(32.dp))
-                        }
+                    if (watchAccounts.isNotEmpty()) {
+                        BalanceAccountsSection(watchAccounts, viewModel, navController)
+                        Spacer(modifier = Modifier.height(32.dp))
                     }
+                }
 
-                    /* Column(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                /* Column(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             BalanceItems(
                 balanceViewItems,
                 viewModel,
@@ -118,11 +118,11 @@ fun BalanceForAccount(navController: NavController) {
         }
         */
 
-                }
             }
         }
     }
 
+}
 
 @Composable
 private fun BalanceAccountsSection(

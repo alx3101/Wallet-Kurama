@@ -1,31 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/navigation_wallet"
         android:icon="@drawable/wallet_icon"
-        android:title="@string/Market_Title" />
+        android:title="@string/Market_Title"
+        app:showAsAction="always"
+        android:titleCondensed="Market" />
 
     <item
         android:id="@+id/navigation_track"
         android:icon="@drawable/track_icon"
-        android:title="@string/Balance_Title" />
+        android:title="@string/Balance_Title"
+        app:showAsAction="always"
+        android:titleCondensed="Balance" />
 
     <item
         android:id="@+id/navigation_home"
-        android:icon="@drawable/kurama_finance_circle"
-        android:title="@string/Balance_Title" />
+        android:icon="@drawable/ic_center"
+        android:title=""
+        app:showAsAction="always"
+        android:titleCondensed="Home"
+        app:itemIconSize= "@dimen/icon_size"/>
 
     <item
         android:id="@+id/navigation_reports"
         android:icon="@drawable/reports_icon"
-        android:title="@string/Transactions_Title" />
-
-
+        android:title="@string/Transactions_Title"
+        android:titleCondensed="Transactions"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/navigation_social"
         android:icon="@drawable/social_icon"
-        android:title="@string/Settings_Title" />
+        android:title="@string/Settings_Title"
+        app:showAsAction="always"
+        android:titleCondensed="Settings" />
+
 
 </menu>

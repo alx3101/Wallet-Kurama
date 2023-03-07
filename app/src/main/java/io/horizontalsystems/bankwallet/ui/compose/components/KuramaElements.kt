@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.ui.compose.components
 
 import androidx.annotation.DrawableRes
+import androidx.compose.Compose
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,7 +18,9 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,8 +34,10 @@ import androidx.ui.core.px
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewItem
 import io.horizontalsystems.bankwallet.modules.balance.newBalanceViewModel
+import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 
 @Composable
+
 fun KuramaTabRow(
     tabs: List<String>,
     selectedTabIndex: Int,
@@ -42,15 +47,28 @@ fun KuramaTabRow(
     selectedTabColor: Color = Color.Black,
     textColor: Color = Color.White,
     selectedTextColor: Color = Color.White,
-    tabPadding: Dp = 15.dp,
+    tabPadding: Dp = 1.dp,
     cornerRadius: Dp = 20.dp,
-    spacing: Dp = 15.dp,
+    spacing: Dp = 0.dp,
     enabledTabs: List<Boolean> = tabs.map { true } // By default, all tabs are enabled
 ) {
+
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+
+    val fontSize = with(LocalDensity.current) {
+        if (screenWidth > 600.dp) {
+            18.sp // Font size for larger screens
+        } else {
+            10.9.sp // Default font size
+        }
+    }
+
+
     Row(
         modifier = modifier
             .background(color = Color.Transparent, shape = RoundedCornerShape(cornerRadius))
-            .padding(horizontal = spacing / 12 )
+            .padding(horizontal = spacing / 10)
     ) {
         tabs.zip(enabledTabs).forEachIndexed { index, (title, enabled) ->
             val isSelected = selectedTabIndex == index
@@ -59,28 +77,39 @@ fun KuramaTabRow(
             if (index == 2) { // Add an icon to the third tab
                 Box(
                     modifier = Modifier
-                        .height(40.dp)
+                        .heightIn(min = 40.dp)
                         .weight(1f)
-                        .padding(horizontal = spacing / 2)
-                        .background(color = if (isSelected) selectedTabColor else if (enabled) tabColor else tabColor.copy(alpha = 1.0f), shape = RoundedCornerShape(cornerRadius))
+                        .padding(horizontal = spacing / 3)
+                        .background(
+                            color = if (isSelected) selectedTabColor else if (enabled) ComposeAppTheme.colors.laguna else tabColor.copy(
+                                alpha = 1.0f
+                            ),
+                            shape = RoundedCornerShape(cornerRadius)
+                        )
                         .clickable(enabled) { onTabSelected(index) }
-                        .padding(horizontal = 15.dp, vertical = 13.5.dp)
                         .align(Alignment.CenterVertically)
                 ) {
-                    Row {
+                    Row(
+                        modifier = Modifier.align(Alignment.Center),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
                         Text(
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier ,
                             text = title,
                             maxLines = 1,
-                            color = if (isSelected) selectedTextColor else if (enabled) textColor else textColor.copy(alpha = 1.0f),
-                            fontWeight = FontWeight.W500,
-                            fontSize = if (title.length > 7) 10.sp else 14.sp,
+                            color = if (isSelected) selectedTextColor else if (enabled) ComposeAppTheme.colors.raina else textColor.copy(alpha = 1.0f),
+                            fontWeight = FontWeight.W400,
+                            fontSize = fontSize,
                             textAlign = TextAlign.Center
                         )
+                        Spacer(modifier = Modifier.width(10.dp))
                         Image(
                             painter = painterResource(id = R.drawable.expand_wallet),
                             contentDescription = null,
-                        modifier = Modifier.size(10.dp).padding(top = 5.dp)
+                            modifier = Modifier
+                                .size(10.dp)
+                                .align(Alignment.CenterVertically)
+                                .padding(top = 3.dp)
                         )
                     }
                 }
@@ -89,19 +118,23 @@ fun KuramaTabRow(
                     modifier = Modifier
                         .height(40.dp)
                         .weight(1f)
-                        .padding(horizontal = spacing / 1)
-                        .background(color = if (isSelected) selectedTabColor else if (enabled) tabColor else tabColor.copy(alpha = 1.0f), shape = RoundedCornerShape(cornerRadius))
+                        .padding(horizontal = spacing / 3)
+                        .background(
+                            color = if (isSelected) selectedTabColor else if (enabled) ComposeAppTheme.colors.laguna else tabColor.copy(
+                                alpha = 1.0f
+                            ), shape = RoundedCornerShape(cornerRadius)
+                        )
                         .clickable(enabled) { onTabSelected(index) }
-                        .padding(horizontal = tabPadding, vertical = 5.dp)
+                        .padding(horizontal = tabPadding, vertical = 4.dp)
                         .align(Alignment.CenterVertically)
                 ) {
                     Text(
                         modifier = Modifier.align(Alignment.Center),
                         text = title,
                         maxLines = 2,
-                        color = if (isSelected) selectedTextColor else if (enabled) textColor else textColor.copy(alpha = 1.0f),
-                        fontWeight = FontWeight.W500,
-                        fontSize = if (title.length > 7) 11.sp else 14.sp
+                        color = if (isSelected) selectedTextColor else if (enabled) ComposeAppTheme.colors.raina else textColor.copy(alpha = 1.0f),
+                        fontWeight = FontWeight.W400,
+                        fontSize = fontSize
                     )
                 }
             }
@@ -115,38 +148,48 @@ fun walletActionButton(
     text: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
-
 ) {
     val painter: Painter = painterResource(id = drawableId)
+    val boxSize = 30.dp // adjust as needed
 
-    Box(
-        modifier = modifier
-            .background(color = Color(31, 34, 42, 1), shape = CircleShape)
-            .padding(0.5.dp)
-            .size(100.dp)
-            .clickable(onClick = {})
-    ) {
-        Image(
-            painter = painter,
-            contentDescription = "drawable_icons",
+    BoxWithConstraints(modifier = modifier) {
+        Box(
             modifier = Modifier
-                .size(55.dp)
-                .align(Alignment.Center),
-            contentScale = ContentScale.Fit
-        )
-        Text(
-            text = text,
-            modifier = Modifier
-                .padding(top = 80.dp)
-                .align(Alignment.BottomCenter),
-            color = Color.White,
-            fontSize = if (text.length > 6) 14.5.sp else 16.sp
+                .align(Alignment.TopCenter)
+                .background(color = ComposeAppTheme.colors.laguna, shape = CircleShape)
+                .padding(10.dp)
+                .size(boxSize)
+                .clickable(onClick = onClick)
+        ) {
+            Image(
+                painter = painter,
+                contentDescription = "drawable_icons",
+                modifier = Modifier
+                    .size(boxSize / 1.0f)
+                    .align(Alignment.Center),
+                contentScale = ContentScale.Fit
+            )
+        }
 
-        )
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(top = 50.dp)
+        ) {
+            Text(
+                text = text,
+                color = ComposeAppTheme.colors.raina,
+                fontWeight = FontWeight.W400,
+                fontSize = if (text.length > 6) 14.5.sp else 14.sp
+            )
+        }
     }
 }
-@Composable
-fun WalletActionsRow( navController: NavController) {
+
+
+
+    @Composable
+fun WalletActionsRow(navController: NavController) {
     val buttonWidth = (LocalContext.current.resources.displayMetrics.widthPixels / 3).toFloat()
 
     Row(
@@ -154,24 +197,35 @@ fun WalletActionsRow( navController: NavController) {
         modifier = Modifier.fillMaxWidth()
     ) {
         walletActionButton(
-            drawableId = R.drawable.send_icon,
+            drawableId = R.drawable.send_kurama_icon,
             text = "Send",
-            modifier = Modifier.weight(1f).width(buttonWidth.dp),
-                    onClick = { navController.navigate(R.id.sendXFragment) }
+            modifier = Modifier
+                .weight(1f)
+                .width(buttonWidth.dp)
+                .align(Alignment.CenterVertically),
+            onClick = { navController.navigate(R.id.sendXFragment) }
         )
 
         walletActionButton(
-            drawableId = R.drawable.swap_icon,
+            drawableId = R.drawable.swap_kurama_icon,
             text = "Swap",
-            modifier = Modifier.weight(1f).width(buttonWidth.dp),
-                    onClick = { navController.navigate(R.id.swapFragment) }
+            modifier = Modifier
+                .weight(1f)
+                .width(buttonWidth.dp)
+                .align(Alignment.CenterVertically),
+
+            onClick = { navController.navigate(R.id.swapFragment) }
         )
 
         walletActionButton(
-            drawableId = R.drawable.receive_icon,
+            drawableId = R.drawable.receive_kurama_icon,
             text = "Receive",
-            modifier = Modifier.weight(1f).width(buttonWidth.dp),
-                    onClick = { navController.navigate(R.id.receiveFragment) }
+            modifier = Modifier
+                .weight(1f)
+                .width(buttonWidth.dp)
+                .align(Alignment.CenterVertically),
+
+            onClick = { navController.navigate(R.id.receiveFragment) }
         )
     }
 }

@@ -50,7 +50,7 @@ fun ButtonSecondaryCircle(
         modifier = modifier
             .size(28.dp)
             .clip(CircleShape)
-            .background(ComposeAppTheme.colors.steel20),
+            .background(Color.Transparent),
         rippleColor = tint
     ) {
         Icon(
