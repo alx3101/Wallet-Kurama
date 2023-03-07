@@ -92,11 +92,11 @@ fun BalanceCard(
 
                 Text(
                     text = viewItem.coinCode,
-                    style = TextStyle(color = ComposeAppTheme.colors.raina, fontWeight = FontWeight.Normal)
+                    style = TextStyle(color = ComposeAppTheme.colors.text, fontWeight = FontWeight.Normal)
                 )
                 Text(
                     text = "****",
-                    style = TextStyle(color = ComposeAppTheme.colors.raina)
+                    style = TextStyle(color = ComposeAppTheme.colors.text)
                 )
 
             }
@@ -128,9 +128,9 @@ fun BalanceCard(
                 val context = LocalContext.current
 
                 Text(text = viewItem.coinCode,
-                    style = TextStyle(color = ComposeAppTheme.colors.raina, fontWeight = FontWeight.Normal))
+                    style = TextStyle(color = ComposeAppTheme.colors.text, fontWeight = FontWeight.Normal))
                 Text(text = "${viewModel.calculatePercentage(viewItem,totalState)}%",
-                    style = TextStyle(color = ComposeAppTheme.colors.raina))
+                    style = TextStyle(color = ComposeAppTheme.colors.text))
 
 
 
@@ -181,11 +181,11 @@ fun WalletBalanceCard(
 
                 Text(
                     text = viewItem.coinCode,
-                    style = TextStyle(color = ComposeAppTheme.colors.raina, fontWeight = FontWeight.Normal)
+                    style = TextStyle(color = ComposeAppTheme.colors.text, fontWeight = FontWeight.Normal)
                 )
                 Text(
                     text = "****",
-                    style = TextStyle(color = ComposeAppTheme.colors.raina)
+                    style = TextStyle(color = ComposeAppTheme.colors.text)
                 )
 
             }
@@ -217,9 +217,9 @@ fun WalletBalanceCard(
                 val context = LocalContext.current
 
                 Text(text = viewItem.coinCode,
-                    style = TextStyle(color = ComposeAppTheme.colors.raina, fontWeight = FontWeight.Normal))
+                    style = TextStyle(color = ComposeAppTheme.colors.text, fontWeight = FontWeight.Normal))
                 Text(text = "${viewModel.calculatePercentage(viewItem,totalState)}%",
-                    style = TextStyle(color = ComposeAppTheme.colors.raina))
+                    style = TextStyle(color = ComposeAppTheme.colors.text))
 
 
 

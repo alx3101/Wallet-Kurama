@@ -45,7 +45,7 @@ fun createWalletButton(
         shape = RoundedCornerShape(15.dp),
         contentPadding = PaddingValues(12.dp),
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = ComposeAppTheme.colors.laguna
+            backgroundColor = ComposeAppTheme.colors.lawrence
         ),
     ) {
         Column (
@@ -73,7 +73,7 @@ fun createWalletButton(
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 text = buttonText,
-                color = ComposeAppTheme.colors.raina,
+                color = ComposeAppTheme.colors.text,
                 textAlign = TextAlign.Center,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.W400
@@ -139,7 +139,7 @@ fun walletButton(
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 text = buttonText,
-                color = Color.White,
+                color = ComposeAppTheme.colors.text,
                 textAlign = TextAlign.Center,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.W400

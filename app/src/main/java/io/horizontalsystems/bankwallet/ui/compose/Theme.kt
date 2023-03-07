@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.Color
 
 
 //Kurama Palette
-
+/*
 val KuramalightPalette = Colors(
     jacob = YellowL,
     remus = GreenL,
@@ -40,6 +40,8 @@ val KuramadarkPalette = Colors(
 )
 
 
+ */
+
 
 //Old Palette
 val lightPalette = Colors(
@@ -54,7 +56,10 @@ val lightPalette = Colors(
     jeremy = SteelLight,
     laguna = LagunaL,
     raina = White50,
+    text = Color.Black
 )
+
+
 
 val darkPalette = Colors(
     jacob = YellowD,
@@ -68,6 +73,7 @@ val darkPalette = Colors(
     jeremy = Steel20,
     laguna = LagunaD,
     raina = Steel10,
+    text = Color.White
 )
 
 @Composable

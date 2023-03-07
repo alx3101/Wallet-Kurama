@@ -206,7 +206,7 @@ fun WalletBalanceItem(
                         .height(if (expandedState == true) 300.dp else 135.dp)
                         .clip(RoundedCornerShape(15.dp))
                         .fillMaxWidth()
-                        .background(ComposeAppTheme.colors.laguna)
+                        .background(ComposeAppTheme.colors.lawrence)
                         .padding(top = 0.dp, start = 6.dp, end = 6.dp)
                         .clickable {
                             navController.navigate(
@@ -422,7 +422,7 @@ fun BalanceItems(
                         .height(if (expandedState == true) 300.dp else 135.dp)
                         .clip(RoundedCornerShape(15.dp))
                         .fillMaxWidth()
-                        .background(ComposeAppTheme.colors.laguna)
+                        .background(ComposeAppTheme.colors.lawrence)
                         .padding(top = 0.dp, start = 6.dp, end = 6.dp)
                         .clickable(
                             onClick = {
@@ -505,7 +505,7 @@ fun BalanceItems(
 
                                     Text(
                                         text = "",
-                                        color = ComposeAppTheme.colors.raina,
+                                        color = ComposeAppTheme.colors.text,
                                         style = TextStyle(
                                             fontSize = 25.sp,
                                             fontWeight = FontWeight.W400

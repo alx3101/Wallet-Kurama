@@ -43,6 +43,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewModel
 import io.horizontalsystems.bankwallet.modules.balance.newBalanceViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.compose.OrangeK
 import io.horizontalsystems.core.helpers.HudHelper
 import org.koin.core.component.getScopeId
 
@@ -148,7 +149,7 @@ fun FullCircleChart(
 
 
             Text(text = title,
-                color = figmaOrange,
+                color = OrangeK,
                 style = TextStyle(
                     fontSize = 30.sp,
                     fontWeight = FontWeight.W400
@@ -159,7 +160,7 @@ fun FullCircleChart(
             Spacer(modifier = Modifier.height(7.dp))
 
             Text(text = "$balance",
-          color = ComposeAppTheme.colors.raina,
+          color = ComposeAppTheme.colors.text,
             style = TextStyle(
                 fontSize = 30.sp,
                 fontWeight = FontWeight.W500
