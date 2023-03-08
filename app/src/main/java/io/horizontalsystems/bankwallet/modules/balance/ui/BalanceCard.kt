@@ -264,26 +264,21 @@ fun NonFunctionalBalanceCard(
                 val context = LocalContext.current
 
                 Text(text = "Others".uppercase(),
-                    style = TextStyle(color = ComposeAppTheme.colors.raina, fontWeight = FontWeight.Normal),
+                    style = TextStyle(color = ComposeAppTheme.colors.text, fontWeight = FontWeight.Normal),
                 modifier = Modifier.align(Alignment.CenterHorizontally))
 
                 if (viewModel.balanceHidden) {
                     Text(
                         text = "****",
 
-                        style = TextStyle(color = ComposeAppTheme.colors.raina)
+                        style = TextStyle(color = ComposeAppTheme.colors.text)
                     )
                 } else {
                     Text(
                         text = "${viewModel.otherCoinsPecentage}%",
-                        style = TextStyle(color = ComposeAppTheme.colors.raina)
+                        style = TextStyle(color = ComposeAppTheme.colors.text)
                     )
                 }
-
-
-
-
-
             }
         }
 

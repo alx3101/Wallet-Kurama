@@ -81,7 +81,7 @@ fun KuramaTabRow(
                         .weight(1f)
                         .padding(horizontal = spacing / 3)
                         .background(
-                            color = if (isSelected) selectedTabColor else if (enabled) ComposeAppTheme.colors.laguna else tabColor.copy(
+                            color = if (isSelected) selectedTabColor else if (enabled) ComposeAppTheme.colors.lawrence else tabColor.copy(
                                 alpha = 1.0f
                             ),
                             shape = RoundedCornerShape(cornerRadius)
@@ -97,7 +97,7 @@ fun KuramaTabRow(
                             modifier = Modifier ,
                             text = title,
                             maxLines = 1,
-                            color = if (isSelected) selectedTextColor else if (enabled) ComposeAppTheme.colors.raina else textColor.copy(alpha = 1.0f),
+                            color = if (isSelected) selectedTextColor else if (enabled) ComposeAppTheme.colors.text else textColor.copy(alpha = 1.0f),
                             fontWeight = FontWeight.W400,
                             fontSize = fontSize,
                             textAlign = TextAlign.Center
@@ -120,7 +120,7 @@ fun KuramaTabRow(
                         .weight(1f)
                         .padding(horizontal = spacing / 3)
                         .background(
-                            color = if (isSelected) selectedTabColor else if (enabled) ComposeAppTheme.colors.laguna else tabColor.copy(
+                            color = if (isSelected) selectedTabColor else if (enabled) ComposeAppTheme.colors.lawrence else tabColor.copy(
                                 alpha = 1.0f
                             ), shape = RoundedCornerShape(cornerRadius)
                         )
@@ -132,7 +132,7 @@ fun KuramaTabRow(
                         modifier = Modifier.align(Alignment.Center),
                         text = title,
                         maxLines = 2,
-                        color = if (isSelected) selectedTextColor else if (enabled) ComposeAppTheme.colors.raina else textColor.copy(alpha = 1.0f),
+                        color = if (isSelected) selectedTextColor else if (enabled) ComposeAppTheme.colors.text else textColor.copy(alpha = 1.0f),
                         fontWeight = FontWeight.W400,
                         fontSize = fontSize
                     )
@@ -156,7 +156,7 @@ fun walletActionButton(
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .background(color = ComposeAppTheme.colors.laguna, shape = CircleShape)
+                .background(color = ComposeAppTheme.colors.lawrence, shape = CircleShape)
                 .padding(10.dp)
                 .size(boxSize)
                 .clickable(onClick = onClick)
@@ -178,7 +178,7 @@ fun walletActionButton(
         ) {
             Text(
                 text = text,
-                color = ComposeAppTheme.colors.raina,
+                color = ComposeAppTheme.colors.text,
                 fontWeight = FontWeight.W400,
                 fontSize = if (text.length > 6) 14.5.sp else 14.sp
             )

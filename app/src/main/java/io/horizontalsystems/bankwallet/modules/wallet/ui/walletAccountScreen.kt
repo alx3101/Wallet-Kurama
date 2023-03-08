@@ -104,7 +104,7 @@ fun walletAccountScreen(
             modifier = Modifier
 
                 .fillMaxSize()
-                .background(ComposeAppTheme.colors.claude),
+                .background(ComposeAppTheme.colors.tyler),
             state = listState,
             contentPadding = PaddingValues(top = 10.dp, bottom = 18.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -172,7 +172,7 @@ fun walletAccountScreen(
                                     .padding(vertical = 14.dp),
                                 tabColor = tab,
                                 selectedTabColor = selected,
-                                textColor = Color.White,
+                                textColor = ComposeAppTheme.colors.text,
                                 selectedTextColor = Color.White,
                                 tabPadding = 24.dp,
                                 cornerRadius = 25.dp,
