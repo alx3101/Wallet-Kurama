@@ -5,14 +5,17 @@ import androidx.compose.Compose
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
@@ -60,10 +63,16 @@ fun KuramaTabRow(
         if (screenWidth > 600.dp) {
             18.sp // Font size for larger screens
         } else {
-            10.9.sp // Default font size
+            12.5.sp // Default font size
         }
     }
 
+    fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = composed {
+        clickable(indication = null,
+            interactionSource = remember { MutableInteractionSource() }) {
+            onClick()
+        }
+    }
 
     Row(
         modifier = modifier
@@ -77,7 +86,7 @@ fun KuramaTabRow(
             if (index == 2) { // Add an icon to the third tab
                 Box(
                     modifier = Modifier
-                        .heightIn(min = 40.dp)
+                        .heightIn(min = 35.dp)
                         .weight(1f)
                         .padding(horizontal = spacing / 3)
                         .background(
@@ -86,7 +95,7 @@ fun KuramaTabRow(
                             ),
                             shape = RoundedCornerShape(cornerRadius)
                         )
-                        .clickable(enabled) { onTabSelected(index) }
+                        .noRippleClickable { onTabSelected(index) }
                         .align(Alignment.CenterVertically)
                 ) {
                     Row(
@@ -116,7 +125,7 @@ fun KuramaTabRow(
             } else { // Add a regular tab
                 Box(
                     modifier = Modifier
-                        .height(40.dp)
+                        .height(35.dp)
                         .weight(1f)
                         .padding(horizontal = spacing / 3)
                         .background(
@@ -124,7 +133,7 @@ fun KuramaTabRow(
                                 alpha = 1.0f
                             ), shape = RoundedCornerShape(cornerRadius)
                         )
-                        .clickable(enabled) { onTabSelected(index) }
+                        .noRippleClickable { onTabSelected(index) }
                         .padding(horizontal = tabPadding, vertical = 4.dp)
                         .align(Alignment.CenterVertically)
                 ) {
@@ -150,22 +159,29 @@ fun walletActionButton(
     onClick: () -> Unit,
 ) {
     val painter: Painter = painterResource(id = drawableId)
-    val boxSize = 30.dp // adjust as needed
+    val boxSize = 24.dp // adjust as needed
 
-    BoxWithConstraints(modifier = modifier) {
+    fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = composed {
+        clickable(indication = null,
+            interactionSource = remember { MutableInteractionSource() }) {
+            onClick()
+        }
+    }
+
+    BoxWithConstraints(modifier = modifier.noRippleClickable { onClick  }) {
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .background(color = ComposeAppTheme.colors.lawrence, shape = CircleShape)
                 .padding(10.dp)
                 .size(boxSize)
-                .clickable(onClick = onClick)
+                .noRippleClickable( onClick = onClick)
         ) {
             Image(
                 painter = painter,
                 contentDescription = "drawable_icons",
                 modifier = Modifier
-                    .size(boxSize / 1.0f)
+                    .size(boxSize / 0.5f)
                     .align(Alignment.Center),
                 contentScale = ContentScale.Fit
             )

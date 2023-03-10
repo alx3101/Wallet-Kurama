@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.fontResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -57,49 +58,18 @@ fun FullCircleChart(
 
 ) {
     val figmaOrange = Color(237, 110, 0, 255)
-    val sp = 21 * Resources.getSystem().displayMetrics.scaledDensity / (410 / 160)
-    val context = LocalContext.current
+    val sp = 21 * LocalDensity.current.fontScale.toInt() / (410 / 160)
     val colorCircle = ComposeAppTheme.colors.raina
 
-    val colors: Array<Color> = arrayOf(
-        Color(0xFFED6E00),
-        Color(0xFF1D1BDE),
-        Color(0xFF0066FF),
-        Color(0xFF1BD2DE),
-        Color(0xFF7283BE)
-    )
-
-    fun getColorForPercent(percent: Int, index: Int): Color {
-        return colors.getOrElse(index % colors.size) { colors.last() }
-    }
-
     var startAngle = 105F
-    var prevEndAngle = startAngle
-
-    val proportions = percentValues.mapIndexed { index, item ->
-        val color = getColorForPercent(item.toInt(), index)
-        val sweepAngle = item / 100 * 360F
-        val proportion = Triple(prevEndAngle, prevEndAngle + sweepAngle, color)
-        prevEndAngle += sweepAngle // update end angle for next arc
-        proportion
-    }
-
-    val data = percentValues.mapIndexed { index, item ->
-        val color = getColorForPercent(item.toInt(), index)
-        val data = Pair(item, color)
-        data
-    }
-
-    var animationPlayed by remember { mutableStateOf(false) }
-
 
     val maxAngle by animateFloatAsState(
-        targetValue = if (animationPlayed) 360f else 0f,
+        targetValue = if (viewModel.animationPlayed.value) 360f else 0f,
         animationSpec = tween(durationMillis = 2500)
     )
 
     LaunchedEffect(Unit) {
-        animationPlayed = true
+        viewModel.setAnimationPlayed(true)
     }
 
     Box(
@@ -110,37 +80,36 @@ fun FullCircleChart(
     ) {
         Canvas(
             modifier = Modifier.fillMaxWidth(),
-        ) {
-            val strokeWidth = size.width * 0.075f // 20% of total width of chart
-            val diameter = size.width - strokeWidth
+            onDraw = {
+                val strokeWidth = size.width * 0.075f // 20% of total width of chart
+                val diameter = size.width - strokeWidth
 
-            drawArc(
-                color =  colorCircle.copy(0.10f),
-                startAngle = 0f,
-                sweepAngle = 360f,
-                useCenter = false,
-                topLeft = Offset(x = strokeWidth / 2f, y = strokeWidth / 2f),
-                style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
-                size = Size(diameter, diameter)
-            )
-
-            var prevEndAngle = 105f
-            percentValues.forEachIndexed { index, item ->
-                val color = getColorForPercent(item.toInt(), index)
-                val sweepAngle = item / 100f * maxAngle
                 drawArc(
-                    color = color,
-                    startAngle = prevEndAngle,
-                    sweepAngle = sweepAngle,
+                    color = colorCircle.copy(0.10f),
+                    startAngle = 0f,
+                    sweepAngle = 360f,
                     useCenter = false,
                     topLeft = Offset(x = strokeWidth / 2f, y = strokeWidth / 2f),
                     style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
                     size = Size(diameter, diameter)
                 )
-                prevEndAngle += sweepAngle
-            }
-        }
 
+                var prevEndAngle = 105f
+                percentValues.forEachIndexed { index, item ->
+                    val color = viewModel.getColorForPercent(item.toInt(), index)
+                    val sweepAngle = item / 100f * maxAngle
+                    drawArc(
+                        color = color,
+                        startAngle = prevEndAngle,
+                        sweepAngle = sweepAngle,
+                        useCenter = false,
+                        topLeft = Offset(x = strokeWidth / 2f, y = strokeWidth / 2f),
+                        style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
+                        size = Size(diameter, diameter)
+                    )
+                    prevEndAngle += sweepAngle
+                }
+            })
         Column(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -148,7 +117,8 @@ fun FullCircleChart(
         ) {
 
 
-            Text(text = title,
+            Text(
+                text = title,
                 color = OrangeK,
                 style = TextStyle(
                     fontSize = 30.sp,
@@ -159,12 +129,13 @@ fun FullCircleChart(
 
             Spacer(modifier = Modifier.height(7.dp))
 
-            Text(text = "$balance",
-          color = ComposeAppTheme.colors.text,
-            style = TextStyle(
-                fontSize = 30.sp,
-                fontWeight = FontWeight.W500
-            ),
+            Text(
+                text = "100.301.201$",
+                color = ComposeAppTheme.colors.text,
+                style = TextStyle(
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.W500
+                ),
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
@@ -173,7 +144,7 @@ fun FullCircleChart(
             IconButton(
                 onClick = {
                     viewModel.toggleBalanceVisibility()
-                    HudHelper.vibrate(context)
+
 
                 },
                 modifier = Modifier
@@ -181,14 +152,13 @@ fun FullCircleChart(
                     .size(20.dp)
                     .padding(top = 5.dp),
 
-            ) {
+                ) {
                 Image(
                     painter = painterResource(id = R.drawable.new_hide),
                     contentDescription = null,
                     modifier = Modifier.size(50.dp)
                 )
             }
-
 
         }
     }

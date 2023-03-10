@@ -138,6 +138,7 @@ fun walletCard(
                                 text = viewItem.coinTitle,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
+
                             )
                             Row(
                                 modifier = Modifier
@@ -184,6 +185,7 @@ fun walletCard(
                                     text = viewItem.secondaryValue.value,
                                     color = if (viewItem.secondaryValue.dimmed) ComposeAppTheme.colors.grey else ComposeAppTheme.colors.leah,
                                     style = ComposeAppTheme.typography.headline2,
+                                    fontWeight = FontWeight.W500,
                                     maxLines = 1,
                                     textAlign = TextAlign.End,
                                     modifier = Modifier.align(Alignment.End)

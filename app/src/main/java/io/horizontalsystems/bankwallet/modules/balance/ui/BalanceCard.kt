@@ -27,10 +27,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.ui.core.px
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
@@ -57,91 +59,50 @@ import java.math.BigDecimal
 
 @Composable
 fun BalanceCard(
-    modifier : Modifier,
+    modifier: Modifier,
     viewItem: BalanceViewItem,
     viewModel: newBalanceViewModel,
     accountViewItem:  BalanceModule.BalanceAccountViewItem,
     uiState: BalanceUiState,
     totalState: TotalUIState,
     navController: NavController,
-    color: Color,
-
-
-    ) {
-    if (viewModel.balanceHidden) {
-
-        Row() {
-
-
-            Box(modifier = Modifier
+    color: Color
+) {
+    Row {
+        Box(
+            modifier = Modifier
                 .padding(top = 4.dp, end = 3.dp)
                 .size(14.dp)
                 .align(Alignment.Top)
                 .background(color, CircleShape)
                 .clip(CircleShape)
+        )
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .padding(1.dp)
+                .height(100.dp)
+        ) {
+            Text(
+                text = viewItem.coinCode,
+                style = TextStyle(color = ComposeAppTheme.colors.text, fontWeight = FontWeight.W500, fontSize = 13.sp)
             )
-
-            Column(
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(1.dp)
-                    .height(100.dp)
-            ) {
-
-                val context = LocalContext.current
-
-                Text(
-                    text = viewItem.coinCode,
-                    style = TextStyle(color = ComposeAppTheme.colors.text, fontWeight = FontWeight.Normal)
-                )
+            if (viewModel.balanceHidden) {
                 Text(
                     text = "****",
-                    style = TextStyle(color = ComposeAppTheme.colors.text)
+                    style = TextStyle(color = ComposeAppTheme.colors.text), fontSize = 13.sp, fontWeight = FontWeight.W400
                 )
-
+            } else {
+                Text(
+                    text = "${viewModel.calculatePercentage(viewItem, totalState, accountViewItem.accountId)}%",
+                    style = TextStyle(color = ComposeAppTheme.colors.text), fontSize = 13.sp, fontWeight = FontWeight.W400
+                )
             }
         }
-
-
-
-
-    } else {
-
-
-        Row() {
-
-            Box(modifier = Modifier
-                .padding(top = 4.dp, end = 3.dp)
-                .size(14.dp)
-                .align(Alignment.Top)
-                .background(color, CircleShape)
-                .clip(CircleShape)
-            )
-
-            Column(
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(1.dp)
-                    .height(100.dp)
-            ) {
-
-                val context = LocalContext.current
-
-                Text(text = viewItem.coinCode,
-                    style = TextStyle(color = ComposeAppTheme.colors.text, fontWeight = FontWeight.Normal))
-                Text(text = "${viewModel.calculatePercentage(viewItem,totalState)}%",
-                    style = TextStyle(color = ComposeAppTheme.colors.text))
-
-
-
-
-            }
-        }
-
-
-
     }
 }
+
 
 @Composable
 fun WalletBalanceCard(
@@ -153,84 +114,42 @@ fun WalletBalanceCard(
     totalState: TotalUIState,
     navController: NavController,
     color: Color
-
-    ) {
-
-
-    if (viewModel.balanceHidden) {
-
-        Row() {
-
-
-            Box(modifier = Modifier
+) {
+    Row {
+        Box(
+            modifier = Modifier
                 .padding(top = 4.dp, end = 3.dp)
                 .size(14.dp)
                 .align(Alignment.Top)
                 .background(color, CircleShape)
                 .clip(CircleShape)
+        )
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .padding(1.dp)
+                .height(100.dp)
+        ) {
+            Text(
+                text = viewItem.coinCode,
+                style = TextStyle(color = ComposeAppTheme.colors.text, fontWeight = FontWeight.W500, fontSize = 13.sp)
             )
-
-            Column(
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(1.dp)
-                    .height(100.dp)
-            ) {
-
-                val context = LocalContext.current
-
-                Text(
-                    text = viewItem.coinCode,
-                    style = TextStyle(color = ComposeAppTheme.colors.text, fontWeight = FontWeight.Normal)
-                )
+            if (viewModel.balanceHidden) {
                 Text(
                     text = "****",
                     style = TextStyle(color = ComposeAppTheme.colors.text)
                 )
-
+            } else {
+                Text(
+                    text = "${viewModel.calculatePercentage(viewItem, totalState, accountViewItem.id)}%",
+                    style = TextStyle(color = ComposeAppTheme.colors.text), fontSize = 13.sp, fontWeight = FontWeight.W400
+                )
             }
         }
-
-
-
-
-    } else {
-
-
-        Row() {
-
-            Box(modifier = Modifier
-                .padding(top = 4.dp, end = 3.dp)
-                .size(14.dp)
-                .align(Alignment.Top)
-                .background(color, CircleShape)
-                .clip(CircleShape)
-            )
-
-            Column(
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(1.dp)
-                    .height(100.dp)
-            ) {
-
-                val context = LocalContext.current
-
-                Text(text = viewItem.coinCode,
-                    style = TextStyle(color = ComposeAppTheme.colors.text, fontWeight = FontWeight.Normal))
-                Text(text = "${viewModel.calculatePercentage(viewItem,totalState)}%",
-                    style = TextStyle(color = ComposeAppTheme.colors.text))
-
-
-
-
-            }
-        }
-
-
-
     }
 }
+
 
 
 @Composable
@@ -238,54 +157,45 @@ fun NonFunctionalBalanceCard(
     modifier: Modifier,
     viewModel: newBalanceViewModel,
     color: Color,
-    CoinCode: String,
-    Percentage: String
-
-
-    ) {
-
-        Row(  ) {
-
-            Box(modifier = Modifier
+    coinCode: String,
+    percentage: String
+) {
+    Row {
+        Box(
+            modifier = Modifier
                 .padding(top = 4.dp, end = 3.dp)
                 .size(14.dp)
                 .align(Alignment.Top)
                 .background(color, CircleShape)
                 .clip(CircleShape)
+        )
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .padding(1.dp)
+                .height(100.dp)
+        ) {
+            Text(
+                text = coinCode.uppercase(),
+                style = TextStyle(color = ComposeAppTheme.colors.text, fontWeight = FontWeight.W500),
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
-            Column(
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(1.dp)
-                    .height(100.dp)
-            ) {
-
-                val context = LocalContext.current
-
-                Text(text = "Others".uppercase(),
-                    style = TextStyle(color = ComposeAppTheme.colors.text, fontWeight = FontWeight.Normal),
-                modifier = Modifier.align(Alignment.CenterHorizontally))
-
-                if (viewModel.balanceHidden) {
-                    Text(
-                        text = "****",
-
-                        style = TextStyle(color = ComposeAppTheme.colors.text)
-                    )
-                } else {
-                    Text(
-                        text = "${viewModel.otherCoinsPecentage}%",
-                        style = TextStyle(color = ComposeAppTheme.colors.text)
-                    )
-                }
+            if (viewModel.balanceHidden) {
+                Text(
+                    text = "****",
+                    style = TextStyle(color = ComposeAppTheme.colors.text)
+                )
+            } else {
+                Text(
+                    text = "${viewModel.otherCoinsPecentage}%",
+                    style = TextStyle(color = ComposeAppTheme.colors.text)
+                )
             }
         }
-
-
     }
-
-
+}
 
 
 

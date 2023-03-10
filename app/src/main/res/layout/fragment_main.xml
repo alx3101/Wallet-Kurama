@@ -43,7 +43,6 @@
         android:background="?BottomNavigationBackgroundColor"
         android:paddingTop="10dp"
         app:itemIconTint="@color/bottom_navigation_icon_color"
-        app:itemIconSize="25dp"
         app:labelVisibilityMode="labeled"
         app:itemTextColor="@color/bottom_navigation_text_color"
         app:layout_constraintBottom_toBottomOf="parent"

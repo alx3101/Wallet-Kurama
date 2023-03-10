@@ -4,6 +4,7 @@ import android.accounts.AccountManager
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -45,6 +46,8 @@ class newBalanceViewModel ( private val accountManager: IAccountManager,
 
     var balanceScreenState by mutableStateOf<BalanceScreenState?>(null)
         private set
+    private val _animationPlayed = mutableStateOf(false)
+    val animationPlayed: State<Boolean> = _animationPlayed
     private var activeAccountId: String? = null
     private var balanceViewType = balanceViewTypeManager.balanceViewTypeFlow.value
     private var viewState: ViewState = ViewState.Loading
@@ -53,6 +56,7 @@ class newBalanceViewModel ( private val accountManager: IAccountManager,
     var viewItems by mutableStateOf<Pair<List<BalanceModule.BalanceAccountViewItem>, List<BalanceModule.BalanceAccountViewItem>>?>(
         null
     )
+    val walletBalanceDictionary = mutableMapOf<String, Double>() // Dictionary to store wallet balance with account ID
     var finish by mutableStateOf(false)
     val accountsList: List<Pair<String, Account>> =
         accountManager.accounts.map { account -> Pair(account.id, account) }
@@ -135,15 +139,18 @@ class newBalanceViewModel ( private val accountManager: IAccountManager,
         }
         viewModelScope.launch {
 
-            pieChartData.clear()
+
             calculateAllPercentages()
 
+
         }
+
+
 
         service.start()
         totalBalance.start(viewModelScope)
         otherCoinsPecentage
-
+        Log.e("I valori dentro la map", walletBalanceDictionary.toString())
         Log.e("I valori sono della lista", pieChartData.toString())
 
     }
@@ -166,6 +173,63 @@ class newBalanceViewModel ( private val accountManager: IAccountManager,
                     BalanceScreenState.NoAccount
                 }
             }
+        }
+    }
+
+    fun getWalletBalance(
+        totalState: TotalUIState,
+        accountId: String
+    ) {
+        var walletBalance = 0.0
+
+        if (totalState is TotalUIState.Visible) {
+            if (totalState.secondaryAmountStr == "---" || totalState.secondaryAmountStr.isNullOrEmpty()) {
+                walletBalance = 0.0
+            } else {
+                val balanceInString = totalState.secondaryAmountStr
+                val cleanedStringDollar = balanceInString.replace("$", "")
+                val cleanedLineString = cleanedStringDollar.replace("~", "")
+                val cleanedString = cleanedLineString.replace(",", ".")
+                walletBalance = cleanedString.toDouble()
+
+                val accountID = accountId
+                walletBalanceDictionary[accountID] = walletBalance // Store wallet balance with account ID in dictionary
+            }
+        }
+    }
+
+
+
+    fun setAnimationPlayed(value: Boolean) {
+        _animationPlayed.value = value
+    }
+
+    fun getColorForPercent(percent: Int, index: Int): Color {
+        val colors = arrayOf(
+            Color(0xFFED6E00),
+            Color(0xFF1D1BDE),
+            Color(0xFF0066FF),
+            Color(0xFF1BD2DE),
+            Color(0xFF7283BE)
+        )
+        return colors.getOrElse(index % colors.size) { colors.last() }
+    }
+
+    fun getProportions(percentValues: List<Float>): List<Triple<Float, Float, Color>> {
+        var prevEndAngle = 105F
+        return percentValues.mapIndexed { index, item ->
+            val color = getColorForPercent(item.toInt(), index)
+            val sweepAngle = item / 100 * 360F
+            val proportion = Triple(prevEndAngle, prevEndAngle + sweepAngle, color)
+            prevEndAngle += sweepAngle // update end angle for next arc
+            proportion
+        }
+    }
+
+    fun getData(percentValues: List<Float>): List<Pair<Float, Color>> {
+        return percentValues.mapIndexed { index, item ->
+            val color = getColorForPercent(item.toInt(), index)
+            Pair(item, color)
         }
     }
 
@@ -192,6 +256,8 @@ class newBalanceViewModel ( private val accountManager: IAccountManager,
             migrationRequired = account.nonStandard,
             migrationRecommended = account.nonRecommended
         )
+
+
 
 
     fun onSelect(accountViewItem: BalanceModule.BalanceAccountViewItem) {
@@ -265,12 +331,15 @@ class newBalanceViewModel ( private val accountManager: IAccountManager,
 
     override fun toggleBalanceVisibility() {
         totalBalance.toggleBalanceVisibility()
-
         viewModelScope.launch {
-            service.balanceItemsFlow.value?.let { refreshViewItems(it) }
+            service.balanceItemsFlow.value?.let {
+                refreshViewItems(it)
+            }
+            pieChartData.clear()
+            calculateAllPercentages()
         }
-        calculateAllPercentages()
     }
+
 
     fun onItem(viewItem: BalanceViewItem) {
         viewModelScope.launch {
@@ -283,7 +352,8 @@ class newBalanceViewModel ( private val accountManager: IAccountManager,
         }
     }
 
-    fun calculatePercentage(viewItem: BalanceViewItem, totalState: TotalUIState): Int {
+
+    fun calculatePercentage(viewItem: BalanceViewItem, totalState: TotalUIState,accountId: String): Int {
 
         var percentage = 0
         if (totalState is TotalUIState.Visible) {
@@ -298,6 +368,11 @@ class newBalanceViewModel ( private val accountManager: IAccountManager,
                 val cleanedLineString = cleanedStringDollar.replace("~", "")
                 val cleanedString = cleanedLineString.replace(",", ".")
                 walletBalance = cleanedString.toDouble()
+
+                walletBalanceDictionary[accountId] = walletBalance
+
+
+
             }
 
             if (viewItem.secondaryValue.value == "---" || viewItem.secondaryValue.value.isNullOrEmpty()) {
@@ -319,9 +394,6 @@ class newBalanceViewModel ( private val accountManager: IAccountManager,
 
 
     }
-
-
-
 
 
     fun calculateAndAddPercentageRest(
@@ -373,8 +445,6 @@ class newBalanceViewModel ( private val accountManager: IAccountManager,
     }
 
 
-
-
     fun calculateAndAddPercentage(
         items: List<BalanceViewItem>,
         totalState: TotalUIState
@@ -394,6 +464,7 @@ class newBalanceViewModel ( private val accountManager: IAccountManager,
                     val cleanedLineString = cleanedStringDollar.replace("~", "")
                     val cleanedString = cleanedLineString.replace(",", ".")
                     walletBalance = cleanedString.toDouble()
+
                 }
                 val topFourItems =
                     items.filter { !it.secondaryValue.value.isNullOrEmpty() }
@@ -429,11 +500,6 @@ class newBalanceViewModel ( private val accountManager: IAccountManager,
             }
         }
     }
-
-
-
-
-
 
 
     fun getWalletForReceive(viewItem: BalanceViewItem) = when {

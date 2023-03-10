@@ -1,7 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.balance.ui
 
-import android.os.Bundle
-import android.service.quickaccesswallet.WalletCard
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.Crossfade
@@ -9,10 +7,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -22,6 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
@@ -35,13 +33,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.slideFromBottom
-import io.horizontalsystems.bankwallet.core.slideFromRight
-import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.ViewState
-import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.availablebalance.AvailableBalanceViewModel
 import io.horizontalsystems.bankwallet.modules.balance.*
 import io.horizontalsystems.bankwallet.modules.manageaccount.ManageAccountModule
@@ -208,12 +201,7 @@ fun WalletBalanceItem(
                         .fillMaxWidth()
                         .background(ComposeAppTheme.colors.lawrence)
                         .padding(top = 0.dp, start = 6.dp, end = 6.dp)
-                        .clickable {
-                            navController.navigate(
-                                R.id.walletFragment,
 
-                                )
-                        }
 
                 ) {
 
@@ -304,56 +292,46 @@ fun WalletBalanceItem(
                             ) {
 
                                 BoxWithConstraints(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .padding(end = 8.dp)
+                                    modifier = Modifier.weight(1f)
                                 ) {
+                                    val topFourItems = balanceViewItems
+                                        .sortedWith(compareByDescending { it.secondaryValue.value })
+                                        .take(4)
 
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(start = 1.dp, end = 3.dp),
-                                        horizontalArrangement = Arrangement.SpaceAround
-                                    ) {
-
-
-                                        val topFourItems = balanceViewItems
-                                            .sortedWith(compareByDescending { it.secondaryValue.value })
-                                            .take(4)
+                                    if (balanceViewItems.any { it.secondaryValue.value != "$0" }) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth()
+                                                .padding(start = 15.dp, end = 8.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween
 
 
-                                        // create balance card composables with weight
-                                        topFourItems.forEachIndexed { index, item ->
-                                            val color = colors[index % colors.size]
-                                            WalletBalanceCard(
-                                                modifier = Modifier
-                                                    .padding(end = 5.dp),
-                                                viewItem = item,
+                                        ) {
+                                            topFourItems.forEachIndexed { index, item ->
+                                                val color = colors[index % colors.size]
+                                                if (index < 4) {
+                                                    WalletBalanceCard(
+                                                        modifier = Modifier.weight(1f),
+                                                        viewItem = item,
+                                                        viewModel = viewModel,
+                                                        accountViewItem = accountViewItem,
+                                                        uiState = uiState,
+                                                        totalState = totalState,
+                                                        navController = navController,
+                                                        color = color
+                                                    )
+                                                }
+                                            }
+                                            NonFunctionalBalanceCard(
+                                                modifier = Modifier,
                                                 viewModel = viewModel,
-                                                accountViewItem = accountViewItem,
-                                                uiState = uiState,
-                                                totalState = totalState,
-                                                navController = navController,
-                                                color = color,
-
-                                                )
-
+                                                color = Color(0xFF7283BE),
+                                                coinCode = "Others",
+                                                percentage = "100%"
+                                            )
                                         }
-
-
-                                        NonFunctionalBalanceCard(
-                                            modifier = Modifier,
-                                            viewModel = viewModel,
-                                            color = Color(0xFF7283BE),
-                                            CoinCode = "Other",
-                                            "100%"
-
-
-                                        )
-
-
                                     }
                                 }
+
                             }
                         }
                     }
@@ -382,6 +360,13 @@ fun BalanceItems(
 
 ) {
 
+
+    fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = composed {
+        clickable(indication = null,
+            interactionSource = remember { MutableInteractionSource() }) {
+            onClick()
+        }
+    }
     val percent = remember { mutableStateOf(0) }
     val colors = listOf(
         Color(237, 110, 0, 255), // Arancione
@@ -424,7 +409,7 @@ fun BalanceItems(
                         .fillMaxWidth()
                         .background(ComposeAppTheme.colors.lawrence)
                         .padding(top = 0.dp, start = 6.dp, end = 6.dp)
-                        .clickable(
+                        .noRippleClickable (
                             onClick = {
                                 if (expandedState == true) {
                                     navController.navigate(
@@ -454,6 +439,7 @@ fun BalanceItems(
                                     IconButton(
                                         onClick = {
                                             viewModel.onSelect(accountViewItem)
+                                          // viewModel.getWalletBalance(totalState,accountViewItem)
                                             Log.d("L'ID DELL WALLET è", accountId)
 
                                         },
@@ -504,7 +490,7 @@ fun BalanceItems(
                                     )
 
                                     Text(
-                                        text = "",
+                                        text =  " ",
                                         color = ComposeAppTheme.colors.text,
                                         style = TextStyle(
                                             fontSize = 25.sp,
@@ -512,6 +498,8 @@ fun BalanceItems(
                                         ),
                                         modifier = Modifier.align(Alignment.CenterHorizontally)
                                     )
+
+
 
                                     IconButton(
                                         onClick = {
@@ -624,7 +612,7 @@ fun BalanceItems(
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(start = 1.dp, end = 3.dp),
+                                        .padding(start = 15.dp, end = 1.dp),
                                     horizontalArrangement = Arrangement.SpaceAround
                                 ) {
 
@@ -634,53 +622,43 @@ fun BalanceItems(
                                             .padding(end = 8.dp)
                                     ) {
 
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(start = 1.dp, end = 3.dp),
-                                            horizontalArrangement = Arrangement.SpaceAround
-                                        ) {
+                                        val topFourItems = balanceViewItems
+                                            .sortedWith(compareByDescending { it.secondaryValue.value })
+                                            .take(4)
 
+                                        if (balanceViewItems.any { it.secondaryValue.value != "$0" }) {
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.SpaceBetween
 
-                                            val topFourItems = balanceViewItems
-                                                .sortedWith(compareByDescending { it.secondaryValue.value })
-                                                .take(4)
-
-
-                                            // create balance card composables with weight
-                                            topFourItems.forEachIndexed { index, item ->
-                                                val color = colors[index % colors.size]
-                                                BalanceCard(
-                                                    modifier = Modifier
-                                                        .padding(end = 5.dp),
-                                                    viewItem = item,
+                                            ) {
+                                                topFourItems.forEachIndexed { index, item ->
+                                                    val color = colors[index % colors.size]
+                                                    if (index < 4) {
+                                                        BalanceCard(
+                                                            modifier = Modifier.padding(end = 5.dp),
+                                                            viewItem = item,
+                                                            viewModel = viewModel,
+                                                            accountViewItem = accountViewItem,
+                                                            uiState = uiState,
+                                                            totalState = totalState,
+                                                            navController = navController,
+                                                            color = color
+                                                        )
+                                                    }
+                                                }
+                                                NonFunctionalBalanceCard(
+                                                    modifier = Modifier,
                                                     viewModel = viewModel,
-                                                    accountViewItem = accountViewItem,
-                                                    uiState = uiState,
-                                                    totalState = totalState,
-                                                    navController = navController,
-                                                    color = color,
-
-                                                    )
-
+                                                    color = Color(0xFF7283BE),
+                                                    coinCode = "Others",
+                                                    percentage = "100%"
+                                                )
                                             }
-
-
-                                            NonFunctionalBalanceCard(
-                                                modifier = Modifier,
-                                                viewModel = viewModel,
-                                                color = Color(0xFF7283BE),
-                                                CoinCode = "Other",
-                                                "100%"
-
-
-                                            )
-
-
+                                        } else {
+                                           Log.d("No data","here")
                                         }
                                     }
-
-
                                 }
                             }
                         }

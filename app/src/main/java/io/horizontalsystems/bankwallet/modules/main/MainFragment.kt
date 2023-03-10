@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
+import androidx.core.view.get
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -71,6 +72,23 @@ class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
         super.onViewCreated(view, savedInstanceState)
 
         val mainViewPagerAdapter = MainViewPagerAdapter(this)
+
+        val menu = binding.bottomNavigation.menu
+        val thirdMenuItem = menu.findItem(R.id.navigation_home)
+
+// get the drawable resource for the icon
+        val drawable = resources.getDrawable(R.drawable.kurama_finance_circle_png)
+
+// set the size of the drawable
+        drawable.setBounds(0, 0, 64, 64)
+
+// set the drawable as the icon of the menu item
+        thirdMenuItem.icon = drawable
+
+
+
+
+
 
 
         binding.viewPager.offscreenPageLimit = 1

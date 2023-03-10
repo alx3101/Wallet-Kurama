@@ -123,7 +123,7 @@ fun walletAccountScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 0.dp, start = 25.dp, end = 25.dp)
+                        .padding(top = 15.dp, start = 25.dp, end = 25.dp)
                 ) {
 
                     WalletActionsRow(navController)

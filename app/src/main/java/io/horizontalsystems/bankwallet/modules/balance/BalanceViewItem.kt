@@ -41,7 +41,7 @@ data class BalanceViewItem(
     val errorMessage: String?,
     val isWatchAccount: Boolean,
 
-)
+    )
 
 data class DeemedValue<T>(val value: T, val dimmed: Boolean = false, val visible: Boolean = true)
 data class SyncingProgress(val progress: Int?, val dimmed: Boolean = false)

@@ -247,7 +247,15 @@
     <fragment
         android:id="@+id/walletFragment"
         android:name="io.horizontalsystems.bankwallet.modules.wallet.walletFragment"
-        android:label="walletFragment" />
+        android:label="walletFragment"
+        tools:layout="@layout/fragment_main">
+
+    <action
+        android:id="@+id/action_walletFragment_to_mainFragment"
+        app:destination="@id/mainFragment"
+        app:popUpTo="@id/mainFragment"
+        app:popUpToInclusive="true"/>
+    </fragment>
     <fragment
         android:id="@+id/watchAddressFragment"
         android:name="io.horizontalsystems.bankwallet.modules.watchaddress.WatchAddressFragment" />

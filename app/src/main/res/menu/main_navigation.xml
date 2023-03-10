@@ -13,16 +13,15 @@
         android:id="@+id/navigation_track"
         android:icon="@drawable/track_icon"
         android:title="Track"
-        app:showAsAction="always"
-        android:titleCondensed="Track" />
+        android:titleCondensed="Track"
+        app:iconSize = "40dp"/>
 
     <item
         android:id="@+id/navigation_home"
         android:icon="@drawable/kurama_finance_circle_png"
         android:title=""
         app:showAsAction="always"
-        android:titleCondensed="Home"
-        app:itemIconSize= "@dimen/icon_size"/>
+        android:titleCondensed="Home" />
 
     <item
         android:id="@+id/navigation_reports"
