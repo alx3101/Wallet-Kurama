@@ -130,7 +130,7 @@ fun FullCircleChart(
             Spacer(modifier = Modifier.height(7.dp))
 
             Text(
-                text = "100.301.201$",
+                text = "$balance",
                 color = ComposeAppTheme.colors.text,
                 style = TextStyle(
                     fontSize = 25.sp,
